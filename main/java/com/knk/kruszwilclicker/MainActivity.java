@@ -129,11 +129,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createOverTimeMenu(){
+        overTimeMenuView = getLayoutInflater().inflate(R.layout.overtime_menu, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(overTimeMenuView);
 
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+       // AlertDialog alertDialog = builder.create();
+       // alertDialog.show();
+        builder.show();
     }
 
 
