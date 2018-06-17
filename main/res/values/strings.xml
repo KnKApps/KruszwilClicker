@@ -1,7 +1,25 @@
 <resources>
     <string name="app_name">KruszwilClicker</string>
+
     <string name="overTimeMenuString">Zwiększa zdobywany prestiż na sekunde o %1$s</string>
     <string name="perClickMenuString">Zwiększa prestiż zdobywany przy kliknięciu o %1$s</string>
+
     <string name="counterTop">%1$d</string>
     <string name="counterBottom">%1$d na sekundę</string>
+
+    <string name="perClickButton">perkliki</string>
+    <string name="overtimeButton">Ovetajmy</string>
+
+    <string name="perClick1">Kawior</string>
+    <string name="perClick2">Whisky Jura</string>
+    <string name="perClick3">Svalbardi</string>
+    <string name="perClick4">Złoto</string>
+    <string name="perClick5">Don Perignon</string>
+
+    <string name="overtime1">Kamerzysta</string>
+    <string name="overtime2">Służący</string>
+    <string name="overtime3">Audi A7</string>
+    <string name="overtime4">Willa</string>
+    <string name="overtime5">Giełda Kryptowalut</string>
+
 </resources>

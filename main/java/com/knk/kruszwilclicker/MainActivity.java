@@ -119,18 +119,18 @@ public class MainActivity extends AppCompatActivity {
 
         //Add powerups to the map and associate them with their buttons
         //PerClick
-        addPowerUp(KAWIOR_MODIFIER, KAWIOR_PRICE, TYPE_PERCLICK, KAWIOR_MAX, "Kawior");
-        addPowerUp(WHISKYJURA_MODIFIER, WHISKYJURA_PRICE, TYPE_PERCLICK, WHISKYJURA_MAX, "Whisky Jura");
-        addPowerUp(SVALBARDI_MODIFIER, SVALBARDI_PRICE, TYPE_PERCLICK, SVALBARDI_MAX, "Svalbardi");
-        addPowerUp(ZLOTO_MODIFIER, ZLOTO_PRICE, TYPE_PERCLICK, ZLOTO_MAX, "Złoto");
-        addPowerUp(DONPERIGNON_MODIFIER, DONPERIGNON_PRICE, TYPE_PERCLICK, DONPERIGNON_MAX, "Don Perignon");
+        addPowerUp(KAWIOR_MODIFIER, KAWIOR_PRICE, TYPE_PERCLICK, KAWIOR_MAX, getString(R.string.perClick1));
+        addPowerUp(WHISKYJURA_MODIFIER, WHISKYJURA_PRICE, TYPE_PERCLICK, WHISKYJURA_MAX, getString(R.string.perClick2));
+        addPowerUp(SVALBARDI_MODIFIER, SVALBARDI_PRICE, TYPE_PERCLICK, SVALBARDI_MAX, getString(R.string.perClick3));
+        addPowerUp(ZLOTO_MODIFIER, ZLOTO_PRICE, TYPE_PERCLICK, ZLOTO_MAX, getString(R.string.perClick4));
+        addPowerUp(DONPERIGNON_MODIFIER, DONPERIGNON_PRICE, TYPE_PERCLICK, DONPERIGNON_MAX, getString(R.string.perClick5));
 
         //OvertTime
-        addPowerUp(KAMERZYSTA_MODIFIER, KAMERZYSTA_PRICE, TYPE_OVERTIME, KAMERZYSTA_MAX, "Kamerzysta");
-        addPowerUp(SLUZACY_MODIFIER, SLUZACY_PRICE, TYPE_OVERTIME, SLUZACY_MAX, "Służący");
-        addPowerUp(AUDIA7_MODIFIER, AUDIA7_PRICE, TYPE_OVERTIME, AUDIA7_MAX, "Audi A7");
-        addPowerUp(WILLA_MODIFIER, WILLA_PRICE, TYPE_OVERTIME, WILLA_MAX, "Willa");
-        addPowerUp(GIELDA_MODIFIER, GIELDA_PRICE, TYPE_OVERTIME, GIELDA_MAX, "Giełda Kryptowalut");
+        addPowerUp(KAMERZYSTA_MODIFIER, KAMERZYSTA_PRICE, TYPE_OVERTIME, KAMERZYSTA_MAX, getString(R.string.overtime1));
+        addPowerUp(SLUZACY_MODIFIER, SLUZACY_PRICE, TYPE_OVERTIME, SLUZACY_MAX, getString(R.string.overtime2));
+        addPowerUp(AUDIA7_MODIFIER, AUDIA7_PRICE, TYPE_OVERTIME, AUDIA7_MAX, getString(R.string.overtime3));
+        addPowerUp(WILLA_MODIFIER, WILLA_PRICE, TYPE_OVERTIME, WILLA_MAX, getString(R.string.overtime4));
+        addPowerUp(GIELDA_MODIFIER, GIELDA_PRICE, TYPE_OVERTIME, GIELDA_MAX, getString(R.string.overtime5));
 
         //Load amount of powerups
         load();

@@ -19,7 +19,9 @@
             android:layout_alignTop="@+id/menu_button"
             android:layout_marginStart="14dp"
             android:text="Nazwa"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="14dp" />
 
         <TextView
             android:id="@+id/menu_description"
@@ -28,7 +30,8 @@
             android:layout_alignBottom="@+id/menu_button"
             android:layout_alignStart="@+id/menu_name"
 
-            android:text="@string/overTimeMenuString" />
+            android:text="@string/overTimeMenuString"
+            android:layout_alignLeft="@+id/menu_name" />
 
         <Button
             android:id="@+id/menu_button"
@@ -37,9 +40,11 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:layout_marginEnd="14dp"
-            android:background="@drawable/longgold"
+            android:background="@drawable/menu_button_bg"
             android:onClick="powerUpClick"
-            android:text="Button" />
+            android:text="Button"
+            android:layout_marginRight="14dp"
+            android:layout_alignParentRight="true" />
     </RelativeLayout>
 
     <RelativeLayout
