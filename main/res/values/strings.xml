@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">KruszwilClicker</string>
+    <string name="overTimeMenuString">Zwiększa zdobywany prestiż na sekunde o %1$s</string>
+    <string name="perClickMenuString">Zwiększa prestiż zdobywany przy kliknięciu o %1$s</string>
+    <string name="counterTop">%1$d</string>
+    <string name="counterBottom">%1$d na sekundę</string>
 </resources>
