@@ -1,9 +1,13 @@
 package com.knk.kruszwilclicker;
 
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -16,6 +20,10 @@ import java.util.TimerTask;
 
 import com.plattysoft.leonids.ParticleSystem;
 
+import co.infinum.princeofversions.LoaderFactory;
+import co.infinum.princeofversions.PrinceOfVersions;
+import co.infinum.princeofversions.UpdaterResult;
+import co.infinum.princeofversions.callbacks.UpdaterCallback;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -91,6 +99,10 @@ public class MainActivity extends AppCompatActivity {
     final int TYPE_OVERTIME = 0,
             TYPE_PERCLICK = 1;
 
+
+    //Updater
+    Intent serviceIntent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -148,7 +160,25 @@ public class MainActivity extends AppCompatActivity {
                 createPerClickMenu();
             }
         });
+
+        //Updater
+        serviceIntent = new Intent(this, UpdateService.class);
+        if (!isMyServiceRunning(UpdateService.class)) startService(serviceIntent);
     }
+
+    //Checks whether service is running
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                Log.i ("isMyServiceRunning?", true+"");
+                return true;
+            }
+        }
+        Log.i ("isMyServiceRunning?", false+"");
+        return false;
+    }
+
 
     public void mainClick(View view){
         prestiz += clickValue;
@@ -166,6 +196,12 @@ public class MainActivity extends AppCompatActivity {
         save();
         timer.cancel();
         saveTimer.cancel();
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopService(serviceIntent);
+        super.onDestroy();
     }
 
     //Set timers again
@@ -186,6 +222,8 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         };
+
+
 
         //Timer to save every 5 minutes
         saveTimer = new Timer();
@@ -231,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void powerUpClick(View view){
-        buy(powerUps.get(view.getParent().getParent()),1.1f);
+        buy(powerUps.get(view.getParent().getParent()),1.25f);
     }
 
 

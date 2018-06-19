@@ -22,4 +22,7 @@
     <string name="overtime4">Willa</string>
     <string name="overtime5">Giełda Kryptowalut</string>
 
+    <string name="factory_url">http://kruszwil.000webhostapp.com/kruszwilclicker.json</string>
+    <string name="google_play_url">https://play.google.com/store/apps/details?id=com.knk.kruszwil</string>
+
 </resources>
