@@ -22,6 +22,8 @@ import java.util.LinkedHashMap;
 import android.widget.Toast;
 
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.plattysoft.leonids.ParticleSystem;
 
 import java.util.HashMap;
@@ -117,10 +119,20 @@ public class MainActivity extends AppCompatActivity {
     //Updater
     Intent serviceIntent;
 
+
+    // ;)
+    private static final String TAG = "MainActivity";
+    private AdView mAdView;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         sharedPreferences = getSharedPreferences("prefsy", MODE_PRIVATE);
         editor = sharedPreferences.edit();
@@ -177,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
       
-    }
+
 
         //Updater
         serviceIntent = new Intent(this, UpdateService.class);
@@ -246,7 +258,6 @@ public class MainActivity extends AppCompatActivity {
         };
 
 
-
         //Timer to save every 5 minutes
         saveTimer = new Timer();
         saveTask = new TimerTask() {
@@ -262,10 +273,10 @@ public class MainActivity extends AppCompatActivity {
         };
 
 
-        timer.schedule(timerTask,0,1000);
+        timer.schedule(timerTask, 0, 1000);
         saveTimer.schedule(saveTask, 0, 300000);
 
-
+    }
     public void addPowerUp(int modifier, int price, int type, int max, String name){
 
         PowerUp powerUp = null;
@@ -377,55 +388,7 @@ public class MainActivity extends AppCompatActivity {
             ((Button)powerUp.getView().findViewById(R.id.menu_button)).setText(String.valueOf(powerUp.getPrice()));
             ((ProgressBar)powerUp.getView().findViewById(R.id.menu_progress)).setProgress(powerUp.getCount());
 
-    private void save() {
-        editor.putLong("prestiz",prestiz);
-        editor.putInt("overTimeValue", overTimeValue);
-        editor.putInt("clickValue", clickValue);
 
-        //PowerUps' counts
-        //PerClick
-        editor.putInt("kawiorCount", powerUps.get(R.id.kawiorButton).count);
-        editor.putInt("whiskyJuraCount", powerUps.get(R.id.whiskyJuraButton).count);
-        editor.putInt("svalbardiCount", powerUps.get(R.id.svalbardiButton).count);
-        editor.putInt("zlotoCount", powerUps.get(R.id.zlotoButton).count);
-        editor.putInt("donPerignonCount", powerUps.get(R.id.donPerignonButton).count);
-
-        //OverTime
-        editor.putInt("kamerzystaCount", powerUps.get(R.id.kamerzystaButton).count);
-        editor.putInt("sluzacyCount", powerUps.get(R.id.sluzacyButton).count);
-        editor.putInt("audia7Count", powerUps.get(R.id.audia7Button).count);
-        editor.putInt("willaCount", powerUps.get(R.id.willaButton).count);
-        editor.putInt("gieldaCount", powerUps.get(R.id.gieldaButton).count);
-
-        editor.commit();
-
-    }
-
-    private void load() {
-        //PerClick
-        powerUps.get(R.id.kawiorButton).count = sharedPreferences.getInt("kawiorCount",0);
-        powerUps.get(R.id.whiskyJuraButton).count = sharedPreferences.getInt("whiskyJuraCount",0);
-        powerUps.get(R.id.svalbardiButton).count = sharedPreferences.getInt("svalbardiCount",0);
-        powerUps.get(R.id.zlotoButton).count = sharedPreferences.getInt("zlotoCount",0);
-        powerUps.get(R.id.donPerignonButton).count = sharedPreferences.getInt("donPerignonCount",0);
-
-        //OverTime
-        powerUps.get(R.id.kamerzystaButton).count = sharedPreferences.getInt("kamerzystaCount", 0);
-        powerUps.get(R.id.sluzacyButton).count = sharedPreferences.getInt("sluzacyCount",0);
-        powerUps.get(R.id.audia7Button).count = sharedPreferences.getInt("audia7Count",0);
-        powerUps.get(R.id.willaButton).count = sharedPreferences.getInt("willaCount",0);
-        powerUps.get(R.id.gieldaButton).count = sharedPreferences.getInt("gieldaCount",0);
-
-    }
-
-    private void setCounter(PowerUp powerUp) {
-        if(powerUp instanceof OverTime) {
-            ((TextView) overTimeMenuView.findViewById(powerUp.counterId)).setText(String.valueOf(powerUp.count));
-        } else {
-            ((TextView) perClickMenuView.findViewById(powerUp.counterId)).setText(String.valueOf(powerUp.count));
-
-        }
-    }
 
     }
 
