@@ -4,16 +4,27 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Build;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import java.util.LinkedHashMap;
+
+import android.widget.Toast;
+
+
+import com.plattysoft.leonids.ParticleSystem;
+
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -42,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     TextView prestizCounter;
     TextView overtimeCounter;
 
+
     //Buttons with powerups
     Button overtimeButton;
     Button perClickButton;
@@ -57,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     //PowerUp views
     View overTimeMenuView;
     View perClickMenuView;
+
 
     LinearLayout overtimeLayout;
     LinearLayout perClickLayout;
@@ -76,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
             DONPERIGNON_PRICE = 1000000,
             DONPERIGNON_MODIFIER = 100,
             DONPERIGNON_MAX = 1000,
+
 
 
             KAMERZYSTA_PRICE = 20,
@@ -111,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("prefsy", MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
+
         //Associate buttons
         prestizCounter = findViewById(R.id.counterTop);
         overtimeCounter = findViewById(R.id.counterBottom);
@@ -128,9 +143,9 @@ public class MainActivity extends AppCompatActivity {
         powerUps = new LinkedHashMap<View, PowerUp>();
 
 
-
         //Add powerups to the map and associate them with their buttons
         //PerClick
+
         addPowerUp(KAWIOR_MODIFIER, KAWIOR_PRICE, TYPE_PERCLICK, KAWIOR_MAX, getString(R.string.perClick1));
         addPowerUp(WHISKYJURA_MODIFIER, WHISKYJURA_PRICE, TYPE_PERCLICK, WHISKYJURA_MAX, getString(R.string.perClick2));
         addPowerUp(SVALBARDI_MODIFIER, SVALBARDI_PRICE, TYPE_PERCLICK, SVALBARDI_MAX, getString(R.string.perClick3));
@@ -152,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 createOverTimeMenu();
+
             }
         });
         perClickButton.setOnClickListener(new View.OnClickListener() {
@@ -160,6 +176,8 @@ public class MainActivity extends AppCompatActivity {
                 createPerClickMenu();
             }
         });
+      
+    }
 
         //Updater
         serviceIntent = new Intent(this, UpdateService.class);
@@ -189,6 +207,8 @@ public class MainActivity extends AppCompatActivity {
                 .setRotationSpeed(1000f)
                 .emit(view, 1, 500);
     }
+
+
     //Save everything and cancel timers
     @Override
     protected void onPause() {
@@ -198,11 +218,13 @@ public class MainActivity extends AppCompatActivity {
         saveTimer.cancel();
     }
 
+
     @Override
     protected void onDestroy() {
         stopService(serviceIntent);
         super.onDestroy();
     }
+
 
     //Set timers again
     @Override
@@ -239,12 +261,13 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+
         timer.schedule(timerTask,0,1000);
         saveTimer.schedule(saveTask, 0, 300000);
 
-    }
 
     public void addPowerUp(int modifier, int price, int type, int max, String name){
+
         PowerUp powerUp = null;
 
         View view = getLayoutInflater().inflate(R.layout.menu_item, null);
@@ -303,12 +326,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         alertDialog.show();
+
     }
 
     private void createPerClickMenu() {
         perClickMenuView = getLayoutInflater().inflate(R.layout.perclick_menu, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(perClickMenuView);
+
 
         perClickLayout = (LinearLayout) perClickMenuView.findViewById(R.id.perClickLinearLayout);
 
@@ -352,6 +377,55 @@ public class MainActivity extends AppCompatActivity {
             ((Button)powerUp.getView().findViewById(R.id.menu_button)).setText(String.valueOf(powerUp.getPrice()));
             ((ProgressBar)powerUp.getView().findViewById(R.id.menu_progress)).setProgress(powerUp.getCount());
 
+    private void save() {
+        editor.putLong("prestiz",prestiz);
+        editor.putInt("overTimeValue", overTimeValue);
+        editor.putInt("clickValue", clickValue);
+
+        //PowerUps' counts
+        //PerClick
+        editor.putInt("kawiorCount", powerUps.get(R.id.kawiorButton).count);
+        editor.putInt("whiskyJuraCount", powerUps.get(R.id.whiskyJuraButton).count);
+        editor.putInt("svalbardiCount", powerUps.get(R.id.svalbardiButton).count);
+        editor.putInt("zlotoCount", powerUps.get(R.id.zlotoButton).count);
+        editor.putInt("donPerignonCount", powerUps.get(R.id.donPerignonButton).count);
+
+        //OverTime
+        editor.putInt("kamerzystaCount", powerUps.get(R.id.kamerzystaButton).count);
+        editor.putInt("sluzacyCount", powerUps.get(R.id.sluzacyButton).count);
+        editor.putInt("audia7Count", powerUps.get(R.id.audia7Button).count);
+        editor.putInt("willaCount", powerUps.get(R.id.willaButton).count);
+        editor.putInt("gieldaCount", powerUps.get(R.id.gieldaButton).count);
+
+        editor.commit();
+
+    }
+
+    private void load() {
+        //PerClick
+        powerUps.get(R.id.kawiorButton).count = sharedPreferences.getInt("kawiorCount",0);
+        powerUps.get(R.id.whiskyJuraButton).count = sharedPreferences.getInt("whiskyJuraCount",0);
+        powerUps.get(R.id.svalbardiButton).count = sharedPreferences.getInt("svalbardiCount",0);
+        powerUps.get(R.id.zlotoButton).count = sharedPreferences.getInt("zlotoCount",0);
+        powerUps.get(R.id.donPerignonButton).count = sharedPreferences.getInt("donPerignonCount",0);
+
+        //OverTime
+        powerUps.get(R.id.kamerzystaButton).count = sharedPreferences.getInt("kamerzystaCount", 0);
+        powerUps.get(R.id.sluzacyButton).count = sharedPreferences.getInt("sluzacyCount",0);
+        powerUps.get(R.id.audia7Button).count = sharedPreferences.getInt("audia7Count",0);
+        powerUps.get(R.id.willaButton).count = sharedPreferences.getInt("willaCount",0);
+        powerUps.get(R.id.gieldaButton).count = sharedPreferences.getInt("gieldaCount",0);
+
+    }
+
+    private void setCounter(PowerUp powerUp) {
+        if(powerUp instanceof OverTime) {
+            ((TextView) overTimeMenuView.findViewById(powerUp.counterId)).setText(String.valueOf(powerUp.count));
+        } else {
+            ((TextView) perClickMenuView.findViewById(powerUp.counterId)).setText(String.valueOf(powerUp.count));
+
+        }
+    }
 
     }
 
