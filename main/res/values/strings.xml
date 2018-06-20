@@ -25,4 +25,5 @@
     <string name="factory_url">http://kruszwil.000webhostapp.com/kruszwilclicker.json</string>
     <string name="google_play_url">https://play.google.com/store/apps/details?id=com.knk.kruszwil</string>
 
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 </resources>
