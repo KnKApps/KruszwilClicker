@@ -113,6 +113,9 @@
 
         <Button
             android:id="@+id/button"
+
+            android:onClick="onBoostClick"
+
             android:layout_width="55dp"
             android:layout_height="55dp"
             android:layout_marginEnd="8dp"
@@ -120,7 +123,8 @@
             android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/boost_buttonks"
-            android:text="x5"
+            android:text="x3"
+
             android:textColor="#FFF"
             android:textSize="18sp"
             android:textStyle="bold"
