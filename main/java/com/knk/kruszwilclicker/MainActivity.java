@@ -3,6 +3,7 @@ package com.knk.kruszwilclicker;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.DialogInterface;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -32,6 +33,7 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.reward.RewardItem;
 import com.google.android.gms.ads.reward.RewardedVideoAd;
 import com.google.android.gms.ads.reward.RewardedVideoAdListener;
+
 import com.plattysoft.leonids.ParticleSystem;
 
 import java.util.HashMap;
@@ -123,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
     final int TYPE_OVERTIME = 0,
             TYPE_PERCLICK = 1;
 
@@ -136,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
     private AdView mAdView;
     private RewardedVideoAd mRewardedVideoAd;
     boolean wasAdActivated = false;
+
 
 
     @Override
@@ -162,6 +166,27 @@ public class MainActivity extends AppCompatActivity {
             public void onRewardedVideoStarted() {
 
             }
+          
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
+        sharedPreferences = getSharedPreferences("prefsy", MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
+
+        //Associate buttons
+        prestizCounter = findViewById(R.id.counterTop);
+        overtimeCounter = findViewById(R.id.counterBottom);
+        overtimeButton = findViewById(R.id.overTimeButton);
+        perClickButton = findViewById(R.id.perClickButton);
+
+        //Load everything
+        prestiz = sharedPreferences.getLong("prestiz", 0);
+        clickValue = sharedPreferences.getInt("clickValue", 1);
+        overTimeValue = sharedPreferences.getInt("overTimeValue", 0);
+        prestizCounter.setText(getString(R.string.counterTop, prestiz));
+        overtimeCounter.setText(getString(R.string.counterBottom, overTimeValue));
 
             @Override
             public void onRewardedVideoAdClosed() {
@@ -233,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
         overtimeCounter.setText(getString(R.string.counterBottom, overTimeValue));
 
 
+
         powerUps = new LinkedHashMap<View, PowerUp>();
 
 
@@ -254,7 +280,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Load amount of powerups
         load();
-
 
 
         //Some onClicks
@@ -284,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
                 new AdRequest.Builder().build());
     }
 
+
     //Checks whether service is running
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
@@ -308,6 +334,11 @@ public class MainActivity extends AppCompatActivity {
                 .emit(view, 1, 500);
     }
 
+
+
+
+
+   
 
     //Save everything and cancel timers
     @Override
@@ -340,6 +371,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         setPowerUpsBackground();
                         prestiz += (overTimeValue*prestizMultiplier)/10;
+
                         prestizCounter.setText(getString(R.string.counterTop, prestiz));
                     }
                 });
@@ -368,6 +400,7 @@ public class MainActivity extends AppCompatActivity {
     }
     public void addPowerUp(float modifier, int price, int type, int max, String name){
 
+
         PowerUp powerUp = null;
 
         View view = getLayoutInflater().inflate(R.layout.menu_item, null);
@@ -393,6 +426,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void powerUpClick(View view){
         buy(powerUps.get(view.getParent().getParent()),1.15f);
+
     }
 
 
@@ -410,6 +444,7 @@ public class MainActivity extends AppCompatActivity {
                     ((LinearLayout) entry.getKey().getParent()).removeView(entry.getKey());
                     ((ProgressBar) entry.getKey().findViewById(R.id.menu_progress)).setProgress(entry.getValue().getCount());
 
+
                 }
                 overtimeLayout.addView(entry.getKey());
             }
@@ -417,7 +452,6 @@ public class MainActivity extends AppCompatActivity {
         View dismissButton = getLayoutInflater().inflate(R.layout.dismiss_button, null);
 
         overtimeLayout.addView(dismissButton);
-
 
         final AlertDialog alertDialog = builder.create();
         dismissButton.findViewById(R.id.dismissButton).setOnClickListener(new View.OnClickListener() {
@@ -427,7 +461,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         alertDialog.show();
+
 
     }
 
@@ -463,6 +499,7 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.show();
 
     }
+              
     public void buy(PowerUp powerUp, float priceModifier){
         if(Math.floor(prestiz) >= powerUp.getPrice()) {
             powerUp.increment();
@@ -480,8 +517,6 @@ public class MainActivity extends AppCompatActivity {
             ((ProgressBar) powerUp.getView().findViewById(R.id.menu_progress)).setProgress(powerUp.getCount());
         }
 
-
-    }
 
     public void onBoostClick(View view) {
         createRewardedAdDialog();
@@ -523,8 +558,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         alertDialog.show();
-
+      
     }
+
 
     private void setPowerUpsBackground() {
         for (Map.Entry<View, PowerUp> entry : powerUps.entrySet()) {
@@ -559,6 +595,5 @@ public class MainActivity extends AppCompatActivity {
             entry.getValue().setPrice(Math.round((entry.getValue().getCount()*entry.getValue().getBasePrice()*1.15f)));
             ((Button) entry.getValue().getView().findViewById(R.id.menu_button)).setText(String.valueOf(entry.getValue().getPrice()));
 
-        }
     }
 }

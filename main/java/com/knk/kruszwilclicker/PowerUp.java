@@ -4,18 +4,22 @@ import android.view.View;
 
 public abstract class PowerUp {
     private int count;
+
     private int basePrice;
     private int price;
     private float modifier;
+
     private int max;
     private String name;
     private View view;
+
 
     public PowerUp(float modifier, int price, View view, String name) {
         this.count = 0;
         this.modifier = modifier;
         this.price = price;
         this.basePrice = price;
+
         this.view = view;
         this.name = name;
     }
@@ -32,6 +36,7 @@ public abstract class PowerUp {
     }
 
     public void setModifier(float modifier) {
+
         this.modifier = modifier;
     }
 
@@ -41,6 +46,7 @@ public abstract class PowerUp {
 
     public void setName(String name) {
         this.name = name;
+
     }
 
     public void setView(View view) {
@@ -72,4 +78,5 @@ public abstract class PowerUp {
     }
 
     public int getBasePrice() {return basePrice;}
+
 }
