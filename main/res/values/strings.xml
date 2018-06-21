@@ -1,3 +1,29 @@
 <resources>
     <string name="app_name">KruszwilClicker</string>
+
+    <string name="overTimeMenuString">Zwiększa zdobywany prestiż na sekunde o %1$s</string>
+    <string name="perClickMenuString">Zwiększa prestiż zdobywany przy kliknięciu o %1$s</string>
+
+    <string name="counterTop">%1$.1f</string>
+    <string name="counterBottom">%1$.1f na sekundę</string>
+
+    <string name="overtimeButton">Własności</string>
+    <string name="perClickButton">Delikatesy</string>
+
+    <string name="perClick1">Kawior</string>
+    <string name="perClick2">Whisky Jura</string>
+    <string name="perClick3">Svalbardi</string>
+    <string name="perClick4">Złoto</string>
+    <string name="perClick5">Don Perignon</string>
+
+    <string name="overtime1">Kamerzysta</string>
+    <string name="overtime2">Służący</string>
+    <string name="overtime3">Audi A7</string>
+    <string name="overtime4">Willa</string>
+    <string name="overtime5">Giełda Kryptowalut</string>
+
+    <string name="factory_url">http://kruszwil.000webhostapp.com/kruszwilclicker.json</string>
+    <string name="google_play_url">https://play.google.com/store/apps/details?id=com.knk.kruszwil</string>
+
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 </resources>
