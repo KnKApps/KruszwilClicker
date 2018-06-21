@@ -7,8 +7,8 @@
     <string name="counterTop">%1$d</string>
     <string name="counterBottom">%1$d na sekundę</string>
 
-    <string name="perClickButton">perkliki</string>
-    <string name="overtimeButton">Ovetajmy</string>
+    <string name="overtimeButton">Własności</string>
+    <string name="perClickButton">Delikatesy</string>
 
     <string name="perClick1">Kawior</string>
     <string name="perClick2">Whisky Jura</string>

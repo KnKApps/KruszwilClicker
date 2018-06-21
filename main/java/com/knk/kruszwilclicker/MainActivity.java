@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -320,6 +322,7 @@ public class MainActivity extends AppCompatActivity {
                 if (entry.getKey().getParent() != null) {
                     ((LinearLayout) entry.getKey().getParent()).removeView(entry.getKey());
                     ((ProgressBar) entry.getKey().findViewById(R.id.menu_progress)).setProgress(entry.getValue().getCount());
+
                 }
                 overtimeLayout.addView(entry.getKey());
             }
@@ -327,6 +330,7 @@ public class MainActivity extends AppCompatActivity {
         View dismissButton = getLayoutInflater().inflate(R.layout.dismiss_button, null);
 
         overtimeLayout.addView(dismissButton);
+
 
         final AlertDialog alertDialog = builder.create();
         dismissButton.findViewById(R.id.dismissButton).setOnClickListener(new View.OnClickListener() {

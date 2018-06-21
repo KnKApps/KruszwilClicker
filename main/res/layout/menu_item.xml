@@ -19,6 +19,11 @@
             android:layout_alignTop="@+id/menu_button"
             android:layout_marginStart="14dp"
             android:text="Nazwa"
+            android:shadowColor="#000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="1.5"
+            android:textColor="#FFF"
             android:textStyle="bold"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="14dp" />
@@ -27,6 +32,11 @@
             android:id="@+id/menu_description"
             android:layout_width="186dp"
             android:layout_height="wrap_content"
+            android:shadowColor="#000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="1.5"
+            android:textColor="#FFF"
             android:layout_alignBottom="@+id/menu_button"
             android:layout_alignStart="@+id/menu_name"
 
@@ -40,9 +50,14 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:layout_marginEnd="14dp"
-            android:background="@drawable/menu_button_bg"
+            android:background="@drawable/buttonks"
             android:onClick="powerUpClick"
             android:text="Button"
+            android:shadowColor="#000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="1.5"
+            android:textColor="#FFF"
             android:layout_marginRight="14dp"
             android:layout_alignParentRight="true" />
     </RelativeLayout>
@@ -60,7 +75,8 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="20dp"
-            android:progress="50" />
+            android:progress="50"
+            />
     </RelativeLayout>
 
 
