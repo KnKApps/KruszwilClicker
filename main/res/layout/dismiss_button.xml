@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    >
 
 
     <Button
@@ -18,5 +19,9 @@
         android:shadowRadius="1.5"
         android:textColor="#FFF"
         android:textStyle="bold"
-        android:textSize="18sp"/>
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"
+
+
+        />
 </RelativeLayout>

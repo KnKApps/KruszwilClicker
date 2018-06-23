@@ -4,8 +4,9 @@
     <string name="overTimeMenuString">Zwiększa zdobywany prestiż na sekunde o %1$s</string>
     <string name="perClickMenuString">Zwiększa prestiż zdobywany przy kliknięciu o %1$s</string>
 
-    <string name="counterTop">%1$d</string>
-    <string name="counterBottom">%1$d na sekundę</string>
+    <string name="counterTop">%1$.1f</string>
+    <string name="counterBottom">%1$.1f na sekundę</string>
+
 
     <string name="overtimeButton">Własności</string>
     <string name="perClickButton">Delikatesy</string>

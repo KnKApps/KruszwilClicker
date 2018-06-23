@@ -2,11 +2,15 @@ package com.knk.kruszwilclicker;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.media.Image;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +18,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -26,6 +31,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.reward.RewardItem;
+import com.google.android.gms.ads.reward.RewardedVideoAd;
+import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 import com.plattysoft.leonids.ParticleSystem;
 
 import java.util.HashMap;
@@ -42,7 +51,8 @@ import co.infinum.princeofversions.callbacks.UpdaterCallback;
 
 
 public class MainActivity extends AppCompatActivity {
-    long prestiz;
+    float prestiz;
+    int prestizMultiplier = 1;
 
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
@@ -63,8 +73,8 @@ public class MainActivity extends AppCompatActivity {
     Button perClickButton;
 
     //Variables for powerups
-    int clickValue;
-    int overTimeValue;
+    float clickValue;
+    float overTimeValue;
 
 
     //Associates buttons with PowerUps
@@ -79,38 +89,40 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout perClickLayout;
 
     final int KAWIOR_PRICE = 100,
-            KAWIOR_MODIFIER = 1,
-            KAWIOR_MAX = 1000,
+            KAWIOR_MAX = 500,
             WHISKYJURA_PRICE = 500,
-            WHISKYJURA_MODIFIER = 5,
-            WHISKYJURA_MAX = 1000,
+            WHISKYJURA_MAX = 300,
             SVALBARDI_PRICE = 2000,
-            SVALBARDI_MODIFIER = 20,
-            SVALBARDI_MAX = 1000,
-            ZLOTO_PRICE = 50000,
-            ZLOTO_MODIFIER = 50,
+            SVALBARDI_MAX = 200,
+            ZLOTO_PRICE = 5000,
             ZLOTO_MAX = 1000,
-            DONPERIGNON_PRICE = 1000000,
-            DONPERIGNON_MODIFIER = 100,
-            DONPERIGNON_MAX = 1000,
+            DONPERIGNON_PRICE = 100000,
+            DONPERIGNON_MAX = 10,
 
 
-
-            KAMERZYSTA_PRICE = 20,
-            KAMERZYSTA_MODIFIER = 1,
-            KAMERZYSTA_MAX = 1000,
+            KAMERZYSTA_PRICE = 15,
+            KAMERZYSTA_MAX = 500,
             SLUZACY_PRICE = 100,
-            SLUZACY_MODIFIER = 10,
-            SLUZACY_MAX = 1000,
+            SLUZACY_MAX = 450,
             AUDIA7_PRICE = 1000,
-            AUDIA7_MODIFIER = 50,
-            AUDIA7_MAX = 1000,
-            WILLA_PRICE = 10000,
-            WILLA_MODIFIER = 100,
-            WILLA_MAX = 1000,
-            GIELDA_PRICE = 100000,
-            GIELDA_MODIFIER = 500,
-            GIELDA_MAX = 1000;
+            AUDIA7_MAX = 300,
+            WILLA_PRICE = 150000,
+            WILLA_MAX = 100,
+            GIELDA_PRICE = 1000000,
+            GIELDA_MAX = 50;
+
+
+    final float KAWIOR_MODIFIER = 0.1f,
+            WHISKYJURA_MODIFIER = 2f,
+            SVALBARDI_MODIFIER = 5f,
+            ZLOTO_MODIFIER = 10f,
+            DONPERIGNON_MODIFIER = 20f,
+
+            KAMERZYSTA_MODIFIER = 0.1f,
+            SLUZACY_MODIFIER = 2f,
+            AUDIA7_MODIFIER = 200f,
+            WILLA_MODIFIER = 500f,
+            GIELDA_MODIFIER = 9999f;
 
 
 
@@ -125,12 +137,82 @@ public class MainActivity extends AppCompatActivity {
     // ;)
     private static final String TAG = "MainActivity";
     private AdView mAdView;
+    private RewardedVideoAd mRewardedVideoAd;
+    boolean wasAdActivated = false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this);
+        mRewardedVideoAd.setRewardedVideoAdListener(new RewardedVideoAdListener() {
+            @Override
+            public void onRewardedVideoAdLoaded() {
+                if(wasAdActivated) {
+                    mRewardedVideoAd.show();
+                    wasAdActivated = false;
+                }
+            }
+
+            @Override
+            public void onRewardedVideoAdOpened() {
+
+            }
+
+            @Override
+            public void onRewardedVideoStarted() {
+
+            }
+
+            @Override
+            public void onRewardedVideoAdClosed() {
+                wasAdActivated = false;
+                loadRewardedVideoAd();
+            }
+
+            @Override
+            public void onRewarded(RewardItem rewardItem) {
+                prestizMultiplier = 3;
+                overtimeCounter.setText(getString(R.string.counterBottom, overTimeValue*prestizMultiplier));
+
+
+                new CountDownTimer(60000,1000) {
+                    @Override
+                    public void onTick(long l) {
+                        ((Button)findViewById(R.id.button)).setText(String.valueOf(l/1000));
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        ((Button)findViewById(R.id.button)).setText("X3");
+                        prestizMultiplier = 1;
+                        overtimeCounter.setText(getString(R.string.counterBottom, overTimeValue*prestizMultiplier));
+                    }
+                }.start();
+
+                wasAdActivated = false;
+            }
+
+            @Override
+            public void onRewardedVideoAdLeftApplication() {
+
+            }
+
+            @Override
+            public void onRewardedVideoAdFailedToLoad(int i) {
+
+            }
+
+            @Override
+            public void onRewardedVideoCompleted() {
+
+            }
+        });
+
+        loadRewardedVideoAd();
+
 
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -147,9 +229,9 @@ public class MainActivity extends AppCompatActivity {
         perClickButton = findViewById(R.id.perClickButton);
 
         //Load everything
-        prestiz = sharedPreferences.getLong("prestiz", 0);
-        clickValue = sharedPreferences.getInt("clickValue", 1);
-        overTimeValue = sharedPreferences.getInt("overTimeValue", 0);
+        prestiz = sharedPreferences.getFloat("prestiz", 0f);
+        clickValue = sharedPreferences.getFloat("clickValue", 1f);
+        overTimeValue = sharedPreferences.getFloat("overTimeValue", 0.0f);
         prestizCounter.setText(getString(R.string.counterTop, prestiz));
         overtimeCounter.setText(getString(R.string.counterBottom, overTimeValue));
 
@@ -173,8 +255,16 @@ public class MainActivity extends AppCompatActivity {
         addPowerUp(WILLA_MODIFIER, WILLA_PRICE, TYPE_OVERTIME, WILLA_MAX, getString(R.string.overtime4));
         addPowerUp(GIELDA_MODIFIER, GIELDA_PRICE, TYPE_OVERTIME, GIELDA_MAX, getString(R.string.overtime5));
 
+      addPowerUp(KAMERZYSTA_MODIFIER, KAMERZYSTA_PRICE, TYPE_OVERTIME, KAMERZYSTA_MAX, getString(R.string.overtime1));
+        addPowerUp(SLUZACY_MODIFIER, SLUZACY_PRICE, TYPE_OVERTIME, SLUZACY_MAX, getString(R.string.overtime2));
+        addPowerUp(AUDIA7_MODIFIER, AUDIA7_PRICE, TYPE_OVERTIME, AUDIA7_MAX, getString(R.string.overtime3));
+        addPowerUp(WILLA_MODIFIER, WILLA_PRICE, TYPE_OVERTIME, WILLA_MAX, getString(R.string.overtime4));
+        addPowerUp(GIELDA_MODIFIER, GIELDA_PRICE, TYPE_OVERTIME, GIELDA_MAX, getString(R.string.overtime5));
+
         //Load amount of powerups
         load();
+
+
 
         //Some onClicks
         overtimeButton.setOnClickListener(new View.OnClickListener() {
@@ -198,6 +288,11 @@ public class MainActivity extends AppCompatActivity {
         if (!isMyServiceRunning(UpdateService.class)) startService(serviceIntent);
     }
 
+    private void loadRewardedVideoAd() {
+        mRewardedVideoAd.loadAd("ca-app-pub-3940256099942544/5224354917",
+                new AdRequest.Builder().build());
+    }
+
     //Checks whether service is running
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
@@ -213,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void mainClick(View view){
-        prestiz += clickValue;
+        prestiz += clickValue*prestizMultiplier;
         prestizCounter.setText(getString(R.string.counterTop, prestiz));
 
         new ParticleSystem(MainActivity.this, 50, R.drawable.kruszwilek, 500)
@@ -252,7 +347,8 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        prestiz += overTimeValue;
+                        setPowerUpsBackground();
+                        prestiz += (overTimeValue*prestizMultiplier)/10;
                         prestizCounter.setText(getString(R.string.counterTop, prestiz));
                     }
                 });
@@ -275,11 +371,11 @@ public class MainActivity extends AppCompatActivity {
         };
 
 
-        timer.schedule(timerTask, 0, 1000);
+        timer.schedule(timerTask, 0, 100);
         saveTimer.schedule(saveTask, 0, 300000);
 
     }
-    public void addPowerUp(int modifier, int price, int type, int max, String name){
+    public void addPowerUp(float modifier, int price, int type, int max, String name){
 
         PowerUp powerUp = null;
 
@@ -305,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void powerUpClick(View view){
-        buy(powerUps.get(view.getParent().getParent()),1.25f);
+        buy(powerUps.get(view.getParent().getParent()),1.15f);
     }
 
 
@@ -315,7 +411,10 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(overTimeMenuView);
 
+
+
         overtimeLayout = (LinearLayout) overTimeMenuView.findViewById(R.id.overtimeLinearLayout);
+
 
         for(Map.Entry<View, PowerUp> entry : powerUps.entrySet()) {
             if (entry.getValue() instanceof OverTime) {
@@ -327,12 +426,31 @@ public class MainActivity extends AppCompatActivity {
                 overtimeLayout.addView(entry.getKey());
             }
         }
-        View dismissButton = getLayoutInflater().inflate(R.layout.dismiss_button, null);
 
+        View dismissButton = getLayoutInflater().inflate(R.layout.dismiss_button, null);
         overtimeLayout.addView(dismissButton);
 
-
         final AlertDialog alertDialog = builder.create();
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+
+                //saving original dialog size, as adding a background drawable changes it
+                int h, w;
+                if(overTimeMenuView.getHeight() > overtimeLayout.getHeight()){
+                     h = overtimeLayout.getHeight();
+                     w = overtimeLayout.getWidth();
+                }else{
+                     h = overTimeMenuView.getHeight();
+                     w = overTimeMenuView.getWidth();
+                }
+
+                alertDialog.getWindow().setBackgroundDrawable(getResources().getDrawable(R.drawable.bg3));
+
+                alertDialog.getWindow().setLayout(w,h);
+
+            }
+        });
         dismissButton.findViewById(R.id.dismissButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -366,6 +484,24 @@ public class MainActivity extends AppCompatActivity {
         perClickLayout.addView(dismissButton);
 
         final AlertDialog alertDialog = builder.create();
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+
+                //saving original dialog size, as adding a background drawable changes it
+                int h, w;
+                if(perClickMenuView.getHeight() > perClickLayout.getHeight()){
+                    h = perClickLayout.getHeight();
+                    w = perClickLayout.getWidth();
+                }else{
+                    h = perClickMenuView.getHeight();
+                    w = perClickMenuView.getWidth();
+                }
+
+                alertDialog.getWindow().setBackgroundDrawable(getResources().getDrawable(R.drawable.bg3));
+                alertDialog.getWindow().setLayout(w,h);
+            }
+        });
         dismissButton.findViewById(R.id.dismissButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -377,29 +513,86 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void buy(PowerUp powerUp, float priceModifier){
-
+        if(Math.floor(prestiz) >= powerUp.getPrice()) {
             powerUp.increment();
+            prestiz -= powerUp.getPrice();
             powerUp.setPrice(Math.round((powerUp.getPrice() * priceModifier)));
-            prestiz-=powerUp.getPrice();
 
-            if(powerUp instanceof PerClick){
+            if (powerUp instanceof PerClick) {
                 clickValue += powerUp.getModifier();
-            }else{
+            } else {
                 overTimeValue += powerUp.getModifier();
             }
             prestizCounter.setText(getString(R.string.counterTop, prestiz));
-            overtimeCounter.setText(getString(R.string.counterBottom, overTimeValue));
-            ((Button)powerUp.getView().findViewById(R.id.menu_button)).setText(String.valueOf(powerUp.getPrice()));
-            ((ProgressBar)powerUp.getView().findViewById(R.id.menu_progress)).setProgress(powerUp.getCount());
-
+            overtimeCounter.setText(getString(R.string.counterBottom, overTimeValue * prestizMultiplier));
+            ((Button) powerUp.getView().findViewById(R.id.menu_button)).setText(String.valueOf(powerUp.getPrice()));
+            ((ProgressBar) powerUp.getView().findViewById(R.id.menu_progress)).setProgress(powerUp.getCount());
+        }
 
 
     }
 
+    public void onBoostClick(View view) {
+        createRewardedAdDialog();
+    }
+
+    private void createRewardedAdDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Prestiż x3!");
+        builder.setMessage("Czy chcesz obejrzeć reklamę i przyspieszyć zdobywanie prestiżu?\nPrestiż x3 przez 60 sekund.");
+        builder.setNegativeButton("NIE", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setPositiveButton("TAK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (mRewardedVideoAd.isLoaded()) {
+                    mRewardedVideoAd.show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Poczekaj na wczytanie reklamy", Toast.LENGTH_LONG).show();
+                }
+
+                dialogInterface.dismiss();
+                wasAdActivated = true;
+            }
+        });
+
+        final AlertDialog alertDialog = builder.create();
+
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary));
+                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary));
+
+            }
+        });
+
+        alertDialog.show();
+
+    }
+
+    private void setPowerUpsBackground() {
+        for (Map.Entry<View, PowerUp> entry : powerUps.entrySet()) {
+            if(entry.getValue().getPrice() <= prestiz) {
+                entry.getKey().findViewById(R.id.menu_button).setBackgroundResource(R.drawable.buttonks);
+                ((Button)entry.getKey().findViewById(R.id.menu_button)).setTextColor(Color.parseColor("#FFFFFF"));
+
+            } else {
+                entry.getKey().findViewById(R.id.menu_button).setBackgroundResource(R.drawable.buttonks_locked);
+                ((Button)entry.getKey().findViewById(R.id.menu_button)).setTextColor(Color.parseColor("#CCCCCC"));
+
+            }
+        }
+    }
+
     private void save() {
-        editor.putLong("prestiz",prestiz);
-        editor.putInt("overTimeValue", overTimeValue);
-        editor.putInt("clickValue", clickValue);
+        editor.putFloat("prestiz",prestiz);
+        editor.putFloat("overTimeValue", overTimeValue);
+        editor.putFloat("clickValue", clickValue);
 
         for(Map.Entry<View, PowerUp> entry : powerUps.entrySet()){
             editor.putInt(entry.getValue().getName(), entry.getValue().getCount());
@@ -411,6 +604,10 @@ public class MainActivity extends AppCompatActivity {
     private void load() {
         for(Map.Entry<View, PowerUp> entry : powerUps.entrySet()){
             entry.getValue().setCount(sharedPreferences.getInt(entry.getValue().getName(), 0));
+            if (entry.getValue().getCount() != 0)
+            entry.getValue().setPrice(Math.round((entry.getValue().getCount()*entry.getValue().getBasePrice()*1.15f)));
+            ((Button) entry.getValue().getView().findViewById(R.id.menu_button)).setText(String.valueOf(entry.getValue().getPrice()));
+
         }
     }
 }
