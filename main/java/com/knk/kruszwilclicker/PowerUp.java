@@ -5,8 +5,8 @@ import android.view.View;
 public abstract class PowerUp {
     private int count;
 
-    private int basePrice;
-    private int price;
+    private long basePrice;
+    private long price;
     private float modifier;
 
     private int max;
@@ -14,7 +14,7 @@ public abstract class PowerUp {
     private View view;
 
 
-    public PowerUp(float modifier, int price, View view, String name) {
+    public PowerUp(float modifier, long price, View view, String name) {
         this.count = 0;
         this.modifier = modifier;
         this.price = price;
@@ -57,7 +57,7 @@ public abstract class PowerUp {
         return count;
     }
 
-    public int getPrice() {
+    public long getPrice() {
         return price;
     }
 
@@ -77,6 +77,6 @@ public abstract class PowerUp {
         return view;
     }
 
-    public int getBasePrice() {return basePrice;}
+    public long getBasePrice() {return basePrice;}
 
 }

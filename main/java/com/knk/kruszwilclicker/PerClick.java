@@ -6,7 +6,7 @@ import android.widget.TextView;
 
 public class PerClick extends PowerUp{
 
-    public PerClick(float modifier, int price, View view, String name){
+    public PerClick(float modifier, long price, View view, String name){
 
         super(modifier, price, view, name);
     }
