@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">KruszwilClicker</string>
+    <string name="app_name">Kruszwil Clicker</string>
 
     <string name="overTimeMenuString">Zwiększa zdobywany prestiż na sekunde o %1$s</string>
     <string name="perClickMenuString">Zwiększa prestiż zdobywany przy kliknięciu o %1$s</string>
@@ -15,7 +15,7 @@
 
     <string name="perClick1">Sushi</string>
     <string name="perClick2">Kawior</string>
-    <string name="perClick3">Papier Toaletowy Haneshibo</string>
+    <string name="perClick3">Papier Haneshibo</string>
     <string name="perClick4">Dziewica</string>
     <string name="perClick5">Whisky Jura</string>
     <string name="perClick6">Svalbardi</string>
@@ -34,7 +34,7 @@
     <string name="factory_url">http://kruszwil.000webhostapp.com/kruszwilclicker.json</string>
     <string name="google_play_url">https://play.google.com/store/apps/details?id=com.knk.kruszwil</string>
 
-    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="banner_ad_unit_id">ca-app-pub-8349688339545762/3439118570</string>
 
 
 

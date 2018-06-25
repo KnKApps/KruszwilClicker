@@ -6,25 +6,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
-import android.media.Image;
-import android.media.ThumbnailUtils;
-import android.os.Build;
+
 import android.os.CountDownTimer;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -41,18 +32,11 @@ import com.google.android.gms.ads.reward.RewardedVideoAd;
 import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 import com.plattysoft.leonids.ParticleSystem;
 
-import java.util.HashMap;
-import java.util.Locale;
+
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.plattysoft.leonids.ParticleSystem;
-
-import co.infinum.princeofversions.LoaderFactory;
-import co.infinum.princeofversions.PrinceOfVersions;
-import co.infinum.princeofversions.UpdaterResult;
-import co.infinum.princeofversions.callbacks.UpdaterCallback;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -258,6 +242,7 @@ public class MainActivity extends AppCompatActivity {
         loadRewardedVideoAd();
 
 
+        MobileAds.initialize(this,"ca-app-pub-8349688339545762~7818181437");
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
@@ -298,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
         addPowerUp(WHISKYJURA_MODIFIER, WHISKYJURA_PRICE, TYPE_PERCLICK, WHISKYJURA_MAX, getString(R.string.perClick5));
         addPowerUp(SVALBARDI_MODIFIER, SVALBARDI_PRICE, TYPE_PERCLICK, SVALBARDI_MAX, getString(R.string.perClick6));
         addPowerUp(ZLOTO_MODIFIER, ZLOTO_PRICE, TYPE_PERCLICK, ZLOTO_MAX, getString(R.string.perClick7));
-        addPowerUp(DONPERIGNON_MODIFIER, DONPERIGNON_PRICE, TYPE_PERCLICK, DONPERIGNON_MAX, getString(R.string.perClick5));
+        addPowerUp(DONPERIGNON_MODIFIER, DONPERIGNON_PRICE, TYPE_PERCLICK, DONPERIGNON_MAX, getString(R.string.perClick8));
 
         //OvertTime
         addPowerUp(KANAL_MODIFIER, KANAL_PRICE, TYPE_OVERTIME, KANAL_MAX, getString(R.string.overtime1));
@@ -342,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadRewardedVideoAd() {
-        mRewardedVideoAd.loadAd("ca-app-pub-3940256099942544/5224354917",
+        mRewardedVideoAd.loadAd("ca-app-pub-8349688339545762/4668030649",
                 new AdRequest.Builder().build());
     }
 
@@ -369,6 +354,7 @@ public class MainActivity extends AppCompatActivity {
 
         new ParticleSystem(MainActivity.this, 50, R.drawable.kruszwilek, 500)
                 .setSpeedRange(0.3f, 0.7f)
+                .setScaleRange(0.5f, 0.5f)
                 .setRotationSpeed(1000f)
                 .emit(view, 1, 500);
     }
