@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
         loadRewardedVideoAd();
 
 
-        MobileAds.initialize(this,"ca-app-pub-8349688339545762~7818181437");
+        MobileAds.initialize(this,getString(R.string.admob_app_id));
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
@@ -327,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadRewardedVideoAd() {
-        mRewardedVideoAd.loadAd("ca-app-pub-8349688339545762/4668030649",
+        mRewardedVideoAd.loadAd(getString(R.string.rewarded_ad_unit_id),
                 new AdRequest.Builder().build());
     }
 
