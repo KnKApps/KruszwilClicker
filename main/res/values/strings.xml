@@ -4,27 +4,38 @@
     <string name="overTimeMenuString">Zwiększa zdobywany prestiż na sekunde o %1$s</string>
     <string name="perClickMenuString">Zwiększa prestiż zdobywany przy kliknięciu o %1$s</string>
 
-    <string name="counterTop">%1$.1f</string>
-    <string name="counterBottom">%1$.1f na sekundę</string>
+    <string name="counterTop">%,1.1f</string>
+    <string name="counterBottom">%,1.1f na sekundę\n%,2.1f za kliknięcie</string>
+
+    <string name="buttonPrice">%,d</string>
 
 
     <string name="overtimeButton">Własności</string>
     <string name="perClickButton">Delikatesy</string>
 
-    <string name="perClick1">Kawior</string>
-    <string name="perClick2">Whisky Jura</string>
-    <string name="perClick3">Svalbardi</string>
-    <string name="perClick4">Złoto</string>
-    <string name="perClick5">Don Perignon</string>
+    <string name="perClick1">Sushi</string>
+    <string name="perClick2">Kawior</string>
+    <string name="perClick3">Papier Toaletowy Haneshibo</string>
+    <string name="perClick4">Dziewica</string>
+    <string name="perClick5">Whisky Jura</string>
+    <string name="perClick6">Svalbardi</string>
+    <string name="perClick7">Złoto</string>
+    <string name="perClick8">Don Perignon</string>
 
-    <string name="overtime1">Kamerzysta</string>
-    <string name="overtime2">Służący</string>
-    <string name="overtime3">Audi A7</string>
-    <string name="overtime4">Willa</string>
-    <string name="overtime5">Giełda Kryptowalut</string>
+    <string name="overtime1">Kanał na YouTube</string>
+    <string name="overtime2">Yeezy Boost</string>
+    <string name="overtime3">iPhone X</string>
+    <string name="overtime4">Kamerzysta</string>
+    <string name="overtime5">Służący</string>
+    <string name="overtime6">Audi A7</string>
+    <string name="overtime7">Willa</string>
+    <string name="overtime8">Giełda Kryptowalut</string>
 
     <string name="factory_url">http://kruszwil.000webhostapp.com/kruszwilclicker.json</string>
     <string name="google_play_url">https://play.google.com/store/apps/details?id=com.knk.kruszwil</string>
 
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+
+
+
 </resources>

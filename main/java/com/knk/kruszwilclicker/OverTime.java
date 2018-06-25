@@ -6,7 +6,7 @@ import android.widget.TextView;
 
 public class OverTime extends PowerUp {
 
-    public OverTime(float modifier, int price, View view, String name){
+    public OverTime(float modifier, long price, View view, String name){
 
         super(modifier, price, view, name);
     }
