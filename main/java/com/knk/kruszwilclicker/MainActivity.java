@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 
+import android.media.MediaPlayer;
 import android.os.CountDownTimer;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -33,7 +34,9 @@ import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 import com.plattysoft.leonids.ParticleSystem;
 
 
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -42,6 +45,10 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
     float prestiz;
     int prestizMultiplier = 1;
+
+    int[] sounds;
+    Random rand;
+    int clickCounter = 0;
 
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
@@ -119,23 +126,23 @@ public class MainActivity extends AppCompatActivity {
 
 
     final float
-            SUSHI_MODIFIER = 0.1f,
-            KAWIOR_MODIFIER = 0.5f,
-            HANEBISHO_MODIFIER = 1,
-            DZIEWICA_MODIFIER = 3,
-            WHISKYJURA_MODIFIER = 5,
-            SVALBARDI_MODIFIER = 8,
-            ZLOTO_MODIFIER = 12,
-            DONPERIGNON_MODIFIER = 20,
+            SUSHI_MODIFIER = 0.2f,
+            KAWIOR_MODIFIER = 0.7f,
+            HANEBISHO_MODIFIER = 1.5f,
+            DZIEWICA_MODIFIER = 4.5f,
+            WHISKYJURA_MODIFIER = 7.5f,
+            SVALBARDI_MODIFIER = 12,
+            ZLOTO_MODIFIER = 18,
+            DONPERIGNON_MODIFIER = 30,
 
-            KANAL_MODIFIER = 0.1f,
-            YEEZY_MODIFIER = 1,
-            IPHONE_MODIFIER = 37,
-            KAMERZYSTA_MODIFIER = 230,
-            SLUZACY_MODIFIER = 1100,
-            AUDIA7_MODIFIER = 6800,
-            WILLA_MODIFIER = 34000,
-            GIELDA_MODIFIER = 210000;
+            KANAL_MODIFIER = 0.2f,
+            YEEZY_MODIFIER = 1.3f,
+            IPHONE_MODIFIER = 37f,
+            KAMERZYSTA_MODIFIER = 230f,
+            SLUZACY_MODIFIER = 1100f,
+            AUDIA7_MODIFIER = 6800f,
+            WILLA_MODIFIER = 34000f,
+            GIELDA_MODIFIER = 210000f;
 
 
 
@@ -152,6 +159,9 @@ public class MainActivity extends AppCompatActivity {
     private AdView mAdView;
     private RewardedVideoAd mRewardedVideoAd;
     boolean wasAdActivated = false;
+
+
+    MediaPlayer mediaPlayer;
 
 
     @Override
@@ -275,7 +285,22 @@ public class MainActivity extends AppCompatActivity {
 
 
         powerUps = new LinkedHashMap<View, PowerUp>();
-
+        rand = new Random();
+        sounds = new int[]{
+                R.raw.ekskluzywnewidowisko,
+                R.raw.fekalia,
+                R.raw.jestemmarek,
+                R.raw.niczymlord,
+                R.raw.ocochodzi,
+                R.raw.parkowacsamochod,
+                R.raw.prestizowo,
+                R.raw.rolexodmierzaczas,
+                R.raw.stosunek,
+                R.raw.szacunek,
+                R.raw.tanutabuja,
+                R.raw.wartoscczlowieka,
+                R.raw.wsadzrolexa
+        };
 
         //Add powerups to the map and associate them with their buttons
         //PerClick
@@ -335,6 +360,16 @@ public class MainActivity extends AppCompatActivity {
                 new AdRequest.Builder().build());
     }
 
+    private void playRandomSound(){
+        int soundId = sounds[rand.nextInt(sounds.length)];
+
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+        mediaPlayer = MediaPlayer.create(getApplicationContext(), soundId);
+        mediaPlayer.start();
+    }
     //Checks whether service is running
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
@@ -350,8 +385,15 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void mainClick(View view){
+        clickCounter++;
+        if(clickCounter>=100){
+            clickCounter = 0;
+            playRandomSound();
+        }
         prestiz += clickValue*prestizMultiplier;
         prestizCounter.setText(getString(R.string.counterTop, prestiz));
+
+
 
         Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.boop_animation);
         findViewById(R.id.imageView).startAnimation(animation);
