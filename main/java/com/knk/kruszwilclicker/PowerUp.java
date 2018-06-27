@@ -14,12 +14,12 @@ public abstract class PowerUp {
     private View view;
 
 
-    public PowerUp(float modifier, long price, View view, String name) {
+    public PowerUp(float modifier, long price, View view, String name, int max) {
         this.count = 0;
         this.modifier = modifier;
         this.price = price;
         this.basePrice = price;
-
+        this.max = max;
         this.view = view;
         this.name = name;
     }
@@ -31,7 +31,7 @@ public abstract class PowerUp {
         this.count = count;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(long price) {
         this.price = price;
     }
 
