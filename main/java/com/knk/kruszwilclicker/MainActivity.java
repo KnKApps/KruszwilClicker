@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
-        sharedPreferences = getSharedPreferences("prefsy", MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("inneścoś", MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
 
@@ -259,12 +259,16 @@ public class MainActivity extends AppCompatActivity {
         boostButton = findViewById(R.id.boostButton);
 
         //Load everything
-        if(sharedPreferences.getAll().get("prestiz") instanceof Long){
+        if(sharedPreferences.getAll().get("prestiz") instanceof Long || sharedPreferences.getAll().get("prestiz") instanceof Integer){
             editor.remove("prestiz");
             editor.commit();
         }
-        prestiz = sharedPreferences.getFloat("prestiz", 0);
-        clickValue = sharedPreferences.getFloat("clickValue", 100000000f);
+        prestiz = sharedPreferences.getFloat("prestiz", 0.0f);
+        if(sharedPreferences.getAll().get("clickValue") instanceof Long || sharedPreferences.getAll().get("clickValue") instanceof Integer){
+            editor.remove("prestiz");
+            editor.commit();
+        }
+        clickValue = sharedPreferences.getFloat("clickValue", 0.1f);
         overTimeValue = sharedPreferences.getFloat("overTimeValue", 0.0f);
         prestizCounter.setText(getString(R.string.counterTop, prestiz));
         overtimeCounter.setText(getString(R.string.counterBottom, (overTimeValue* prestizMultiplier), (clickValue * prestizMultiplier)));
@@ -641,9 +645,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void save() {
-        editor.putFloat("prestiz",prestiz);
-        editor.putFloat("overTimeValue", overTimeValue);
-        editor.putFloat("clickValue", clickValue);
+        editor.putFloat("prestiz",(Float)prestiz);
+        editor.putFloat("overTimeValue", (Float)overTimeValue);
+        editor.putFloat("clickValue", (Float)clickValue);
 
         for(Map.Entry<View, PowerUp> entry : powerUps.entrySet()){
             editor.putInt(entry.getValue().getName(), entry.getValue().getCount());
