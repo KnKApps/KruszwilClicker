@@ -7,7 +7,7 @@
     <string name="counterTop">%,1.1f</string>
     <string name="counterBottom">%,1.1f na sekundę\n%,2.1f za kliknięcie</string>
 
-    <string name="buttonPrice">%,d</string>
+    <string name="buttonPrice">%,1d</string>
 
 
     <string name="overtimeButton">Własności</string>

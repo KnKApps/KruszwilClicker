@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
             editor.commit();
         }
         prestiz = sharedPreferences.getFloat("prestiz", 0);
-        clickValue = sharedPreferences.getFloat("clickValue", 0.1f);
+        clickValue = sharedPreferences.getFloat("clickValue", 100000000f);
         overTimeValue = sharedPreferences.getFloat("overTimeValue", 0.0f);
         prestizCounter.setText(getString(R.string.counterTop, prestiz));
         overtimeCounter.setText(getString(R.string.counterBottom, (overTimeValue* prestizMultiplier), (clickValue * prestizMultiplier)));
@@ -434,16 +434,16 @@ public class MainActivity extends AppCompatActivity {
         ((ProgressBar)view.findViewById(R.id.menu_progress)).setProgress(sharedPreferences.getInt(name, 0));
 
         if(type == TYPE_OVERTIME){
-            powerUp = new OverTime(modifier,price,view, name);
+            powerUp = new OverTime(modifier,price,view, name, max);
         }else{
-            powerUp = new PerClick(modifier,price,view, name);
+            powerUp = new PerClick(modifier,price,view, name, max);
         }
         powerUps.put(view,powerUp);
 
     }
 
     public void powerUpClick(View view){
-        buy(powerUps.get(view.getParent().getParent()),1.15f);
+        buy(powerUps.get(view.getParent().getParent()),1.15);
     }
 
 
@@ -554,21 +554,30 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.show();
 
     }
-    public void buy(PowerUp powerUp, float priceModifier){
-        if(Math.floor(prestiz) >= powerUp.getPrice()) {
-            powerUp.increment();
-            prestiz -= powerUp.getPrice();
-            powerUp.setPrice(Math.round((powerUp.getPrice() * priceModifier)));
+    public void buy(PowerUp powerUp, double priceModifier){
+        if(powerUp.getCount() < powerUp.getMax()) {
+            if (Math.floor(prestiz) >= powerUp.getPrice()) {
+                powerUp.increment();
+                if(powerUp.getCount() < powerUp.getMax()) {
+                    prestiz -= powerUp.getPrice();
+                    powerUp.setPrice(Math.round((powerUp.getPrice() * 1.15)));
+                    if (powerUp instanceof PerClick) {
+                        clickValue += powerUp.getModifier();
+                    } else {
+                        overTimeValue += powerUp.getModifier();
+                    }
+                    prestizCounter.setText(getString(R.string.counterTop, prestiz));
+                    overtimeCounter.setText(getString(R.string.counterBottom, (overTimeValue * prestizMultiplier), (clickValue * prestizMultiplier)));
+                    ((Button) powerUp.getView().findViewById(R.id.menu_button)).setText(getString(R.string.buttonPrice, powerUp.getPrice()));
+                    ((ProgressBar) powerUp.getView().findViewById(R.id.menu_progress)).setProgress(powerUp.getCount());
+                }else{
+                    ((Button ) powerUp.getView().findViewById(R.id.menu_button)).setText("MAX");
+                    ((ProgressBar) powerUp.getView().findViewById(R.id.menu_progress)).setProgress(powerUp.getCount());
 
-            if (powerUp instanceof PerClick) {
-                clickValue += powerUp.getModifier();
-            } else {
-                overTimeValue += powerUp.getModifier();
+                }
             }
-            prestizCounter.setText(getString(R.string.counterTop, prestiz));
-            overtimeCounter.setText(getString(R.string.counterBottom, (overTimeValue * prestizMultiplier), (clickValue * prestizMultiplier)));
-            ((Button) powerUp.getView().findViewById(R.id.menu_button)).setText(getString(R.string.buttonPrice, powerUp.getPrice()));
-            ((ProgressBar) powerUp.getView().findViewById(R.id.menu_progress)).setProgress(powerUp.getCount());
+        }else{
+            ((Button ) powerUp.getView().findViewById(R.id.menu_button)).setText("MAX");
         }
 
 
@@ -619,7 +628,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setPowerUpsBackground() {
         for (Map.Entry<View, PowerUp> entry : powerUps.entrySet()) {
-            if(entry.getValue().getPrice() <= prestiz) {
+            if(entry.getValue().getPrice() <= prestiz && entry.getValue().getCount() < entry.getValue().getMax()) {
                 entry.getKey().findViewById(R.id.menu_button).setBackgroundResource(R.drawable.buttonks);
                 ((Button)entry.getKey().findViewById(R.id.menu_button)).setTextColor(Color.parseColor("#FFFFFF"));
 
@@ -646,10 +655,18 @@ public class MainActivity extends AppCompatActivity {
     private void load() {
         for(Map.Entry<View, PowerUp> entry : powerUps.entrySet()){
             entry.getValue().setCount(sharedPreferences.getInt(entry.getValue().getName(), 0));
-            if (entry.getValue().getCount() != 0)
-            entry.getValue().setPrice(Math.round((entry.getValue().getCount()*entry.getValue().getBasePrice()*1.15f)));
-            ((Button) entry.getValue().getView().findViewById(R.id.menu_button)).setText(getString(R.string.buttonPrice, entry.getValue().getPrice()));
-
+            if (entry.getValue().getCount() != 0) {
+                Log.d("testoviron", entry.getValue().getName() + " " + entry.getValue().getCount() + " " + entry.getValue().getMax());
+                if (entry.getValue().getCount() >= entry.getValue().getMax()) {
+                    ((Button) entry.getValue().getView().findViewById(R.id.menu_button)).setText("MAX");
+                    ((Button) entry.getValue().getView().findViewById(R.id.menu_button)).setOnClickListener(null);
+                }else{
+                    entry.getValue().setPrice(Math.round(
+                            (entry.getValue().getCount() * entry.getValue().getBasePrice() * 1.15)));
+                    ((Button) entry.getValue().getView().findViewById(R.id.menu_button))
+                            .setText(getString(R.string.buttonPrice, entry.getValue().getPrice()));
+                }
+            }
         }
     }
 }
