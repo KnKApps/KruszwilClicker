@@ -5,20 +5,25 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Color;
 
 import android.media.MediaPlayer;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import java.util.LinkedHashMap;
 
@@ -55,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Timers and their tasks
     Timer timer;
+    Timer dolarekCounter;
     Timer saveTimer;
     TimerTask timerTask;
     TimerTask saveTask;
@@ -62,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
     //Every clicker's must have
     TextView prestizCounter;
     TextView overtimeCounter;
+
+    RelativeLayout dolarekLayout;
+    View dolarek;
 
 
     //Buttons with powerups
@@ -115,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
             DONPERIGNON_PRICE = 10000000,
 
 
-            KANAL_PRICE = 15,
+    KANAL_PRICE = 15,
             YEEZY_PRICE = 100,
             IPHONE_PRICE = 1100,
             KAMERZYSTA_PRICE = 130000,
@@ -135,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
             ZLOTO_MODIFIER = 18,
             DONPERIGNON_MODIFIER = 30,
 
-            KANAL_MODIFIER = 0.2f,
+    KANAL_MODIFIER = 0.2f,
             YEEZY_MODIFIER = 1.3f,
             IPHONE_MODIFIER = 37f,
             KAMERZYSTA_MODIFIER = 230f,
@@ -143,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
             AUDIA7_MODIFIER = 6800f,
             WILLA_MODIFIER = 34000f,
             GIELDA_MODIFIER = 210000f;
-
 
 
     final int TYPE_OVERTIME = 0,
@@ -163,17 +171,23 @@ public class MainActivity extends AppCompatActivity {
 
     MediaPlayer mediaPlayer;
 
+    //Bonus dolarek stuff
+    Handler handler;
+    Runnable runnable;
+    boolean wasDolarekClicked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        wasDolarekClicked = false;
+
         mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this);
         mRewardedVideoAd.setRewardedVideoAdListener(new RewardedVideoAdListener() {
             @Override
             public void onRewardedVideoAdLoaded() {
-                if(wasAdActivated) {
+                if (wasAdActivated) {
                     mRewardedVideoAd.show();
                     wasAdActivated = false;
                 }
@@ -205,21 +219,20 @@ public class MainActivity extends AppCompatActivity {
                 });
 
                 prestizMultiplier = 2;
-                overtimeCounter.setText(getString(R.string.counterBottom, (overTimeValue*prestizMultiplier),(clickValue*prestizMultiplier)));
+                overtimeCounter.setText(getString(R.string.counterBottom, (overTimeValue * prestizMultiplier), (clickValue * prestizMultiplier)));
 
 
-
-                new CountDownTimer(60000,1000) {
+                new CountDownTimer(60000, 1000) {
                     @Override
                     public void onTick(long l) {
-                        ((Button)findViewById(R.id.boostButton)).setText(String.valueOf(l/1000));
+                        ((Button) findViewById(R.id.boostButton)).setText(String.valueOf(l / 1000));
                     }
 
                     @Override
                     public void onFinish() {
-                        ((Button)findViewById(R.id.boostButton)).setText("X2");
+                        ((Button) findViewById(R.id.boostButton)).setText("X2");
                         prestizMultiplier = 1;
-                        overtimeCounter.setText(getString(R.string.counterBottom, (overTimeValue*prestizMultiplier),(clickValue*prestizMultiplier)));
+                        overtimeCounter.setText(getString(R.string.counterBottom, (overTimeValue * prestizMultiplier), (clickValue * prestizMultiplier)));
 
                         boostButton.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -252,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
         loadRewardedVideoAd();
 
 
-        MobileAds.initialize(this,getString(R.string.admob_app_id));
+        MobileAds.initialize(this, getString(R.string.admob_app_id));
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
@@ -267,25 +280,29 @@ public class MainActivity extends AppCompatActivity {
         overtimeButton = findViewById(R.id.overTimeButton);
         perClickButton = findViewById(R.id.perClickButton);
         boostButton = findViewById(R.id.boostButton);
+        dolarekLayout = findViewById(R.id.dolarekLayout);
+
 
         //Load everything
-        if(sharedPreferences.getAll().get("prestiz") instanceof Long || sharedPreferences.getAll().get("prestiz") instanceof Integer){
+        if (sharedPreferences.getAll().get("prestiz") instanceof Long || sharedPreferences.getAll().get("prestiz") instanceof Integer) {
             editor.remove("prestiz");
             editor.commit();
         }
         prestiz = sharedPreferences.getFloat("prestiz", 0.0f);
-        if(sharedPreferences.getAll().get("clickValue") instanceof Long || sharedPreferences.getAll().get("clickValue") instanceof Integer){
+        if (sharedPreferences.getAll().get("clickValue") instanceof Long || sharedPreferences.getAll().get("clickValue") instanceof Integer) {
             editor.remove("prestiz");
             editor.commit();
         }
         clickValue = sharedPreferences.getFloat("clickValue", 0.1f);
         overTimeValue = sharedPreferences.getFloat("overTimeValue", 0.0f);
         prestizCounter.setText(getString(R.string.counterTop, prestiz));
-        overtimeCounter.setText(getString(R.string.counterBottom, (overTimeValue* prestizMultiplier), (clickValue * prestizMultiplier)));
+        overtimeCounter.setText(getString(R.string.counterBottom, (overTimeValue * prestizMultiplier), (clickValue * prestizMultiplier)));
 
 
         powerUps = new LinkedHashMap<View, PowerUp>();
         rand = new Random();
+
+
         sounds = new int[]{
                 R.raw.ekskluzywnewidowisko,
                 R.raw.fekalia,
@@ -360,7 +377,7 @@ public class MainActivity extends AppCompatActivity {
                 new AdRequest.Builder().build());
     }
 
-    private void playRandomSound(){
+    private void playRandomSound() {
         int soundId = sounds[rand.nextInt(sounds.length)];
 
         if (mediaPlayer != null) {
@@ -370,29 +387,29 @@ public class MainActivity extends AppCompatActivity {
         mediaPlayer = MediaPlayer.create(getApplicationContext(), soundId);
         mediaPlayer.start();
     }
+
     //Checks whether service is running
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
-                Log.i ("isMyServiceRunning?", true+"");
+                Log.i("isMyServiceRunning?", true + "");
                 return true;
             }
         }
-        Log.i ("isMyServiceRunning?", false+"");
+        Log.i("isMyServiceRunning?", false + "");
         return false;
     }
 
 
-    public void mainClick(View view){
+    public void mainClick(View view) {
         clickCounter++;
-        if(clickCounter>=100){
+        if (clickCounter >= 100) {
             clickCounter = 0;
             playRandomSound();
         }
-        prestiz += clickValue*prestizMultiplier;
+        prestiz += clickValue * prestizMultiplier;
         prestizCounter.setText(getString(R.string.counterTop, prestiz));
-
 
 
         Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.boop_animation);
@@ -436,7 +453,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         setPowerUpsBackground();
-                        prestiz += (overTimeValue*prestizMultiplier)/10;
+                        prestiz += (overTimeValue * prestizMultiplier) / 10;
                         prestizCounter.setText(getString(R.string.counterTop, prestiz));
                     }
                 });
@@ -463,48 +480,71 @@ public class MainActivity extends AppCompatActivity {
         saveTimer.schedule(saveTask, 300000, 300000);
 
     }
-    public void addPowerUp(float modifier, long price, int type, int max, String name){
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        handler = new Handler();
+
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        makeDollar();
+                    }
+                });
+
+                handler.postDelayed(this, rand.nextInt(2*60*1000)+60000);
+            }
+        };
+
+        handler.postDelayed(runnable, rand.nextInt(2*60*1000)+60000);
+
+    }
+
+    public void addPowerUp(float modifier, long price, int type, int max, String name) {
 
         PowerUp powerUp = null;
 
         View view = getLayoutInflater().inflate(R.layout.menu_item, null);
-        ((TextView)view.findViewById(R.id.menu_name)).setText(name);
-        ((TextView)view.findViewById(R.id.menu_description)).setText(
+        ((TextView) view.findViewById(R.id.menu_name)).setText(name);
+        ((TextView) view.findViewById(R.id.menu_description)).setText(
                 (type == TYPE_OVERTIME)
-                        ?getString(R.string.overTimeMenuString, String.valueOf(modifier))
-                        :getString(R.string.perClickMenuString, String.valueOf(modifier))
+                        ? getString(R.string.overTimeMenuString, String.valueOf(modifier))
+                        : getString(R.string.perClickMenuString, String.valueOf(modifier))
         );
 
-        ((Button)view.findViewById(R.id.menu_button)).setText(getString(R.string.buttonPrice, price));
-        ((ProgressBar)view.findViewById(R.id.menu_progress)).setMax(max);
-        ((ProgressBar)view.findViewById(R.id.menu_progress)).setProgress(sharedPreferences.getInt(name, 0));
+        ((Button) view.findViewById(R.id.menu_button)).setText(getString(R.string.buttonPrice, price));
+        ((ProgressBar) view.findViewById(R.id.menu_progress)).setMax(max);
+        ((ProgressBar) view.findViewById(R.id.menu_progress)).setProgress(sharedPreferences.getInt(name, 0));
 
-        if(type == TYPE_OVERTIME){
-            powerUp = new OverTime(modifier,price,view, name, max);
-        }else{
-            powerUp = new PerClick(modifier,price,view, name, max);
+        if (type == TYPE_OVERTIME) {
+            powerUp = new OverTime(modifier, price, view, name, max);
+        } else {
+            powerUp = new PerClick(modifier, price, view, name, max);
         }
-        powerUps.put(view,powerUp);
+        powerUps.put(view, powerUp);
 
     }
 
-    public void powerUpClick(View view){
-        buy(powerUps.get(view.getParent().getParent()),1.15);
+    public void powerUpClick(View view) {
+        buy(powerUps.get(view.getParent().getParent()), 1.15);
     }
 
 
     //Create menus with powerUps
-    private void createOverTimeMenu(){
+    private void createOverTimeMenu() {
         overTimeMenuView = getLayoutInflater().inflate(R.layout.overtime_menu, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(overTimeMenuView);
 
 
-
         overtimeLayout = (LinearLayout) overTimeMenuView.findViewById(R.id.overtimeLinearLayout);
 
 
-        for(Map.Entry<View, PowerUp> entry : powerUps.entrySet()) {
+        for (Map.Entry<View, PowerUp> entry : powerUps.entrySet()) {
             if (entry.getValue() instanceof OverTime) {
                 if (entry.getKey().getParent() != null) {
                     ((LinearLayout) entry.getKey().getParent()).removeView(entry.getKey());
@@ -525,17 +565,17 @@ public class MainActivity extends AppCompatActivity {
 
                 //saving original dialog size, as adding a background drawable changes it
                 int h, w;
-                if(overTimeMenuView.getHeight() > overtimeLayout.getHeight()){
-                     h = overtimeLayout.getHeight();
-                     w = overtimeLayout.getWidth();
-                }else{
-                     h = overTimeMenuView.getHeight();
-                     w = overTimeMenuView.getWidth();
+                if (overTimeMenuView.getHeight() > overtimeLayout.getHeight()) {
+                    h = overtimeLayout.getHeight();
+                    w = overtimeLayout.getWidth();
+                } else {
+                    h = overTimeMenuView.getHeight();
+                    w = overTimeMenuView.getWidth();
                 }
 
                 alertDialog.getWindow().setBackgroundDrawable(getResources().getDrawable(R.drawable.bg3));
 
-                alertDialog.getWindow().setLayout(w,h);
+                alertDialog.getWindow().setLayout(w, h);
 
             }
         });
@@ -558,8 +598,8 @@ public class MainActivity extends AppCompatActivity {
 
         perClickLayout = (LinearLayout) perClickMenuView.findViewById(R.id.perClickLinearLayout);
 
-        for(Map.Entry<View, PowerUp> entry : powerUps.entrySet()) {
-            if(entry.getValue() instanceof PerClick){
+        for (Map.Entry<View, PowerUp> entry : powerUps.entrySet()) {
+            if (entry.getValue() instanceof PerClick) {
                 if (entry.getKey().getParent() != null) {
                     ((LinearLayout) entry.getKey().getParent()).removeView(entry.getKey());
                     ((ProgressBar) entry.getKey().findViewById(R.id.menu_progress)).setProgress(entry.getValue().getCount());
@@ -578,16 +618,16 @@ public class MainActivity extends AppCompatActivity {
 
                 //saving original dialog size, as adding a background drawable changes it
                 int h, w;
-                if(perClickMenuView.getHeight() > perClickLayout.getHeight()){
+                if (perClickMenuView.getHeight() > perClickLayout.getHeight()) {
                     h = perClickLayout.getHeight();
                     w = perClickLayout.getWidth();
-                }else{
+                } else {
                     h = perClickMenuView.getHeight();
                     w = perClickMenuView.getWidth();
                 }
 
                 alertDialog.getWindow().setBackgroundDrawable(getResources().getDrawable(R.drawable.bg3));
-                alertDialog.getWindow().setLayout(w,h);
+                alertDialog.getWindow().setLayout(w, h);
             }
         });
         dismissButton.findViewById(R.id.dismissButton).setOnClickListener(new View.OnClickListener() {
@@ -600,11 +640,12 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.show();
 
     }
-    public void buy(PowerUp powerUp, double priceModifier){
-        if(powerUp.getCount() < powerUp.getMax()) {
+
+    public void buy(PowerUp powerUp, double priceModifier) {
+        if (powerUp.getCount() < powerUp.getMax()) {
             if (Math.floor(prestiz) >= powerUp.getPrice()) {
                 powerUp.increment();
-                if(powerUp.getCount() < powerUp.getMax()) {
+                if (powerUp.getCount() < powerUp.getMax()) {
                     prestiz -= powerUp.getPrice();
                     powerUp.setPrice(Math.round((powerUp.getPrice() * 1.15)));
                     if (powerUp instanceof PerClick) {
@@ -616,14 +657,14 @@ public class MainActivity extends AppCompatActivity {
                     overtimeCounter.setText(getString(R.string.counterBottom, (overTimeValue * prestizMultiplier), (clickValue * prestizMultiplier)));
                     ((Button) powerUp.getView().findViewById(R.id.menu_button)).setText(getString(R.string.buttonPrice, powerUp.getPrice()));
                     ((ProgressBar) powerUp.getView().findViewById(R.id.menu_progress)).setProgress(powerUp.getCount());
-                }else{
-                    ((Button ) powerUp.getView().findViewById(R.id.menu_button)).setText("MAX");
+                } else {
+                    ((Button) powerUp.getView().findViewById(R.id.menu_button)).setText("MAX");
                     ((ProgressBar) powerUp.getView().findViewById(R.id.menu_progress)).setProgress(powerUp.getCount());
 
                 }
             }
-        }else{
-            ((Button ) powerUp.getView().findViewById(R.id.menu_button)).setText("MAX");
+        } else {
+            ((Button) powerUp.getView().findViewById(R.id.menu_button)).setText("MAX");
         }
 
 
@@ -674,24 +715,24 @@ public class MainActivity extends AppCompatActivity {
 
     private void setPowerUpsBackground() {
         for (Map.Entry<View, PowerUp> entry : powerUps.entrySet()) {
-            if(entry.getValue().getPrice() <= prestiz && entry.getValue().getCount() < entry.getValue().getMax()) {
+            if (entry.getValue().getPrice() <= prestiz && entry.getValue().getCount() < entry.getValue().getMax()) {
                 entry.getKey().findViewById(R.id.menu_button).setBackgroundResource(R.drawable.buttonks);
-                ((Button)entry.getKey().findViewById(R.id.menu_button)).setTextColor(Color.parseColor("#FFFFFF"));
+                ((Button) entry.getKey().findViewById(R.id.menu_button)).setTextColor(Color.parseColor("#FFFFFF"));
 
             } else {
                 entry.getKey().findViewById(R.id.menu_button).setBackgroundResource(R.drawable.buttonks_locked);
-                ((Button)entry.getKey().findViewById(R.id.menu_button)).setTextColor(Color.parseColor("#CCCCCC"));
+                ((Button) entry.getKey().findViewById(R.id.menu_button)).setTextColor(Color.parseColor("#CCCCCC"));
 
             }
         }
     }
 
     private void save() {
-        editor.putFloat("prestiz",(Float)prestiz);
-        editor.putFloat("overTimeValue", (Float)overTimeValue);
-        editor.putFloat("clickValue", (Float)clickValue);
+        editor.putFloat("prestiz", (Float) prestiz);
+        editor.putFloat("overTimeValue", (Float) overTimeValue);
+        editor.putFloat("clickValue", (Float) clickValue);
 
-        for(Map.Entry<View, PowerUp> entry : powerUps.entrySet()){
+        for (Map.Entry<View, PowerUp> entry : powerUps.entrySet()) {
             editor.putInt(entry.getValue().getName(), entry.getValue().getCount());
         }
 
@@ -699,14 +740,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void load() {
-        for(Map.Entry<View, PowerUp> entry : powerUps.entrySet()){
+        for (Map.Entry<View, PowerUp> entry : powerUps.entrySet()) {
             entry.getValue().setCount(sharedPreferences.getInt(entry.getValue().getName(), 0));
             if (entry.getValue().getCount() != 0) {
                 Log.d("testoviron", entry.getValue().getName() + " " + entry.getValue().getCount() + " " + entry.getValue().getMax());
                 if (entry.getValue().getCount() >= entry.getValue().getMax()) {
                     ((Button) entry.getValue().getView().findViewById(R.id.menu_button)).setText("MAX");
                     ((Button) entry.getValue().getView().findViewById(R.id.menu_button)).setOnClickListener(null);
-                }else{
+                } else {
                     entry.getValue().setPrice(Math.round(
                             (entry.getValue().getCount() * entry.getValue().getBasePrice() * 1.15)));
                     ((Button) entry.getValue().getView().findViewById(R.id.menu_button))
@@ -715,4 +756,49 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
+    private void makeDollar() {
+        wasDolarekClicked = false;
+        dolarek = getLayoutInflater().inflate(R.layout.dolarek, null);
+
+        dolarekLayout.addView(dolarek);
+
+        float dolarekWidth = 50*Resources.getSystem().getDisplayMetrics().density;
+
+        dolarek.setX(dolarekWidth+rand.nextInt(Math.round(dolarekLayout.getWidth()-2*dolarekWidth)));
+        dolarek.setY(dolarekWidth+rand.nextInt(Math.round(dolarekLayout.getHeight()-2*dolarekWidth)));
+
+
+        Log.i("Dolarek", "" +dolarekWidth);
+
+        dolarekCounter = new Timer();
+        TimerTask dolarekTask = new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dolarekLayout.removeView(dolarek);
+                        if (!wasDolarekClicked)
+                            Toast.makeText(getApplicationContext(), "Przegapiłeś bonus!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        };
+
+        timer.schedule(dolarekTask, 3000);
+    }
+
+    public void onDolarekClick(View view) {
+        wasDolarekClicked = true;
+        dolarekLayout.removeView(dolarek);
+
+        float prestizBonus = 100 * ((clickValue * 5 + overTimeValue) / 2);
+        prestiz += prestizBonus;
+
+
+        Toast.makeText(getApplicationContext(), "Zdobyłeś " + prestizBonus + " prestiżu !", Toast.LENGTH_LONG).show();
+    }
+
 }
