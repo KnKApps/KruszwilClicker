@@ -1,16 +1,25 @@
 package com.knk.kruszwilclicker;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 
+import android.graphics.drawable.LayerDrawable;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +27,7 @@ import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -44,16 +54,21 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-
+import java.util.concurrent.ThreadLocalRandom;
 
 
 public class MainActivity extends AppCompatActivity {
     float prestiz;
+    float pausedPrestiz;
     int prestizMultiplier = 1;
+
+    boolean seen14;
 
     int[] sounds;
     Random rand;
     int clickCounter = 0;
+
+    boolean isFinished;
 
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
@@ -61,9 +76,7 @@ public class MainActivity extends AppCompatActivity {
     //Timers and their tasks
     Timer timer;
     Timer dolarekCounter;
-    Timer saveTimer;
     TimerTask timerTask;
-    TimerTask saveTask;
 
     //Every clicker's must have
     TextView prestizCounter;
@@ -93,45 +106,67 @@ public class MainActivity extends AppCompatActivity {
 
     LinearLayout overtimeLayout;
     LinearLayout perClickLayout;
+    int liskDelay;
+
+    final int powerUpsAmount = 16;
+    int maxedPowerUps;
 
     final int
-            SUSHI_MAX = 200,
-            KAWIOR_MAX = 150,
-            HANEBISHO_MAX = 100,
-            DZIEWICA_MAX = 80,
-            WHISKYJURA_MAX = 60,
-            SVALBARDI_MAX = 40,
-            ZLOTO_MAX = 25,
-            DONPERIGNON_MAX = 10,
-            KANAL_MAX = 200,
-            YEEZY_MAX = 150,
-            IPHONE_MAX = 100,
-            KAMERZYSTA_MAX = 80,
-            SLUZACY_MAX = 60,
-            AUDIA7_MAX = 40,
-            WILLA_MAX = 25,
-            GIELDA_MAX = 10;
+            SUSHI_MAX = 400,
+            KAWIOR_MAX = 300,
+            HANEBISHO_MAX = 200,
+            DZIEWICA_MAX = 160,
+            WHISKYJURA_MAX = 120,
+            SVALBARDI_MAX = 80,
+            ZLOTO_MAX = 50,
+            DONPERIGNON_MAX = 20,
+            KANAL_MAX = 400,
+            YEEZY_MAX = 300,
+            IPHONE_MAX = 200,
+            KAMERZYSTA_MAX = 160,
+            SLUZACY_MAX = 120,
+            AUDIA7_MAX = 80,
+            WILLA_MAX = 50,
+            GIELDA_MAX = 20;
+
+
+//            SUSHI_MAX = 1,
+//            KAWIOR_MAX = 1,
+//            HANEBISHO_MAX = 1,
+//            DZIEWICA_MAX = 1,
+//            WHISKYJURA_MAX = 1,
+//            SVALBARDI_MAX = 1,
+//            ZLOTO_MAX = 1,
+//            DONPERIGNON_MAX = 1,
+//            KANAL_MAX = 1,
+//            YEEZY_MAX = 1,
+//            IPHONE_MAX = 1,
+//            KAMERZYSTA_MAX = 1,
+//            SLUZACY_MAX = 1,
+//            AUDIA7_MAX = 1,
+//            WILLA_MAX = 1,
+//            GIELDA_MAX = 1;
 
 
     final long
             SUSHI_PRICE = 100,
             KAWIOR_PRICE = 1000,
             HANEBISHO_PRICE = 5000,
-            DZIEWICA_PRICE = 10000,
-            WHISKYJURA_PRICE = 50000,
-            SVALBARDI_PRICE = 200000,
-            ZLOTO_PRICE = 1000000,
-            DONPERIGNON_PRICE = 10000000,
+            DZIEWICA_PRICE = 15000,
+            WHISKYJURA_PRICE = 90000,
+            SVALBARDI_PRICE = 400000,
+            ZLOTO_PRICE = 1600000,
+            DONPERIGNON_PRICE = 17000000,
 
 
     KANAL_PRICE = 15,
             YEEZY_PRICE = 100,
             IPHONE_PRICE = 1100,
             KAMERZYSTA_PRICE = 130000,
-            SLUZACY_PRICE = 1400000,
-            AUDIA7_PRICE = 20000000,
-            WILLA_PRICE = 330000000,
-            GIELDA_PRICE = 5100000000L;
+            SLUZACY_PRICE = 2000000,
+            AUDIA7_PRICE = 30000000,
+            WILLA_PRICE = 470000000,
+            GIELDA_PRICE = 7700000000L;
 
 
     final float
@@ -148,10 +183,10 @@ public class MainActivity extends AppCompatActivity {
             YEEZY_MODIFIER = 1.3f,
             IPHONE_MODIFIER = 37f,
             KAMERZYSTA_MODIFIER = 230f,
-            SLUZACY_MODIFIER = 1100f,
-            AUDIA7_MODIFIER = 6800f,
-            WILLA_MODIFIER = 34000f,
-            GIELDA_MODIFIER = 210000f;
+            SLUZACY_MODIFIER = 1000f,
+            AUDIA7_MODIFIER = 6100f,
+            WILLA_MODIFIER = 30000f,
+            GIELDA_MODIFIER = 195000f;
 
 
     final int TYPE_OVERTIME = 0,
@@ -175,13 +210,63 @@ public class MainActivity extends AppCompatActivity {
     Handler handler;
     Runnable runnable;
     boolean wasDolarekClicked;
+    boolean isFirstLisk;
+    Animation fadeIn;
+    Animation fadeOut;
+
+    int xBound;
+    int yBound;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         wasDolarekClicked = false;
+        isFirstLisk = true;
+        handler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        makeDollar();
+                    }
+                });
+
+                isFirstLisk = false;
+                handler.removeCallbacks(runnable);
+                handler.postDelayed(this, liskDelay);
+            }
+        };
+
+        fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in_animation);
+        fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out_animation);
+        dolarek = getLayoutInflater().inflate(R.layout.dolarek, null);
+
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                dolarekLayout.removeView(dolarek);
+                if (!wasDolarekClicked)
+                    Toast.makeText(getApplicationContext(), getString(R.string.missedBonus), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+
 
         mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this);
         mRewardedVideoAd.setRewardedVideoAdListener(new RewardedVideoAdListener() {
@@ -274,7 +359,7 @@ public class MainActivity extends AppCompatActivity {
         editor = sharedPreferences.edit();
 
 
-        //Associate buttons
+        //Associate stuff
         prestizCounter = findViewById(R.id.counterTop);
         overtimeCounter = findViewById(R.id.counterBottom);
         overtimeButton = findViewById(R.id.overTimeButton);
@@ -282,6 +367,13 @@ public class MainActivity extends AppCompatActivity {
         boostButton = findViewById(R.id.boostButton);
         dolarekLayout = findViewById(R.id.dolarekLayout);
 
+
+        ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) dolarekLayout.getLayoutParams();
+        layoutParams.setMargins(0, findViewById(R.id.counter).getMeasuredHeight() , 0, findViewById(R.id.counter).getMeasuredHeight());
+
+        Log.d("tagozaur", findViewById(R.id.counter).getMeasuredHeight() + "");
+
+        dolarekLayout.setLayoutParams(layoutParams);
 
         //Load everything
         if (sharedPreferences.getAll().get("prestiz") instanceof Long || sharedPreferences.getAll().get("prestiz") instanceof Integer) {
@@ -295,12 +387,25 @@ public class MainActivity extends AppCompatActivity {
         }
         clickValue = sharedPreferences.getFloat("clickValue", 0.1f);
         overTimeValue = sharedPreferences.getFloat("overTimeValue", 0.0f);
+        maxedPowerUps = sharedPreferences.getInt("maxedPowerUps", 0);
         prestizCounter.setText(getString(R.string.counterTop, prestiz));
         overtimeCounter.setText(getString(R.string.counterBottom, (overTimeValue * prestizMultiplier), (clickValue * prestizMultiplier)));
 
 
+        seen14 = sharedPreferences.getBoolean("seen14", false);
+        if(!seen14) createUpdate14Dialog();
+
+        isFinished = sharedPreferences.getBoolean("isFinished", false);
+
+        if(isFinished){
+            findViewById(R.id.arrowButton).setVisibility(View.VISIBLE);
+        }
+
         powerUps = new LinkedHashMap<View, PowerUp>();
         rand = new Random();
+
+        liskDelay = rand.nextInt(2*60*1000)+60000;
+//        liskDelay = 5000;
 
 
         sounds = new int[]{
@@ -344,6 +449,25 @@ public class MainActivity extends AppCompatActivity {
 
         //Load amount of powerups
         load();
+
+        //Timer for the over-time prestiż
+        timer = new Timer();
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setPowerUpsBackground();
+                        prestiz += (overTimeValue * prestizMultiplier) / 10;
+                        prestizCounter.setText(getString(R.string.counterTop, prestiz));
+                    }
+                });
+            }
+        };
+
+
+        timer.schedule(timerTask, 0, 100);
 
         //Some onClicks
         overtimeButton.setOnClickListener(new View.OnClickListener() {
@@ -428,79 +552,43 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         save();
-        timer.cancel();
-        saveTimer.cancel();
+        pausedPrestiz = prestiz;
+        handler.removeCallbacks(runnable);
     }
 
 
     @Override
     protected void onDestroy() {
+        save();
         stopService(serviceIntent);
         super.onDestroy();
     }
 
+    @Override
+    protected void onStop() {
+        save();
+        super.onStop();
+    }
 
     //Set timers again
     @Override
     protected void onResume() {
         super.onResume();
-        //Timer for the over-time prestiż
-        timer = new Timer();
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setPowerUpsBackground();
-                        prestiz += (overTimeValue * prestizMultiplier) / 10;
-                        prestizCounter.setText(getString(R.string.counterTop, prestiz));
-                    }
-                });
-            }
-        };
+        if(pausedPrestiz < prestiz) {
+            Toast.makeText(getApplicationContext(),"Zebrano "+(prestiz-pausedPrestiz)+" prestiżu!",Toast.LENGTH_LONG).show();
 
-
-        //Timer to save every 5 minutes
-        saveTimer = new Timer();
-        saveTask = new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        save();
-                    }
-                });
-            }
-        };
-
-
-        timer.schedule(timerTask, 0, 100);
-        saveTimer.schedule(saveTask, 300000, 300000);
+        }
+        handler.postDelayed(runnable, liskDelay);
 
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        handler = new Handler();
 
-        runnable = new Runnable() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        makeDollar();
-                    }
-                });
 
-                handler.postDelayed(this, rand.nextInt(2*60*1000)+60000);
-            }
-        };
-
-        handler.postDelayed(runnable, rand.nextInt(2*60*1000)+60000);
+        if(isFirstLisk)
+            handler.postDelayed(runnable, liskDelay);
 
     }
 
@@ -530,7 +618,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void powerUpClick(View view) {
-        buy(powerUps.get(view.getParent().getParent()), 1.15);
+        buy(powerUps.get(view.getParent().getParent()), 1.1);
     }
 
 
@@ -573,7 +661,7 @@ public class MainActivity extends AppCompatActivity {
                     w = overTimeMenuView.getWidth();
                 }
 
-                alertDialog.getWindow().setBackgroundDrawable(getResources().getDrawable(R.drawable.bg3));
+                alertDialog.getWindow().setBackgroundDrawable(getResources().getDrawable(R.drawable.bg3_transparent));
 
                 alertDialog.getWindow().setLayout(w, h);
 
@@ -626,7 +714,7 @@ public class MainActivity extends AppCompatActivity {
                     w = perClickMenuView.getWidth();
                 }
 
-                alertDialog.getWindow().setBackgroundDrawable(getResources().getDrawable(R.drawable.bg3));
+                alertDialog.getWindow().setBackgroundDrawable(getResources().getDrawable(R.drawable.bg3_transparent));
                 alertDialog.getWindow().setLayout(w, h);
             }
         });
@@ -645,20 +733,27 @@ public class MainActivity extends AppCompatActivity {
         if (powerUp.getCount() < powerUp.getMax()) {
             if (Math.floor(prestiz) >= powerUp.getPrice()) {
                 powerUp.increment();
+                prestiz -= powerUp.getPrice();
+                if (powerUp instanceof PerClick) {
+                    clickValue += powerUp.getModifier();
+                } else {
+                    overTimeValue += powerUp.getModifier();
+                }
+
+                prestizCounter.setText(getString(R.string.counterTop, prestiz));
+                overtimeCounter.setText(getString(R.string.counterBottom, (overTimeValue * prestizMultiplier), (clickValue * prestizMultiplier)));
+
                 if (powerUp.getCount() < powerUp.getMax()) {
-                    prestiz -= powerUp.getPrice();
-                    powerUp.setPrice(Math.round((powerUp.getPrice() * 1.15)));
-                    if (powerUp instanceof PerClick) {
-                        clickValue += powerUp.getModifier();
-                    } else {
-                        overTimeValue += powerUp.getModifier();
-                    }
-                    prestizCounter.setText(getString(R.string.counterTop, prestiz));
-                    overtimeCounter.setText(getString(R.string.counterBottom, (overTimeValue * prestizMultiplier), (clickValue * prestizMultiplier)));
+                    powerUp.setPrice(Math.round((powerUp.getPrice() * priceModifier)));
                     ((Button) powerUp.getView().findViewById(R.id.menu_button)).setText(getString(R.string.buttonPrice, powerUp.getPrice()));
                     ((ProgressBar) powerUp.getView().findViewById(R.id.menu_progress)).setProgress(powerUp.getCount());
                 } else {
+
                     ((Button) powerUp.getView().findViewById(R.id.menu_button)).setText("MAX");
+                    maxedPowerUps++;
+                    if(maxedPowerUps==powerUpsAmount) onEnd();
+                    editor.putInt("maxedPowerUps", maxedPowerUps);
+                    editor.commit();
                     ((ProgressBar) powerUp.getView().findViewById(R.id.menu_progress)).setProgress(powerUp.getCount());
 
                 }
@@ -666,8 +761,11 @@ public class MainActivity extends AppCompatActivity {
         } else {
             ((Button) powerUp.getView().findViewById(R.id.menu_button)).setText("MAX");
         }
-
-
+        editor.putFloat("prestiz", (Float) prestiz);
+        editor.putFloat("overTimeValue", (Float) overTimeValue);
+        editor.putFloat("clickValue", (Float) clickValue);
+        editor.putInt(powerUp.getName(), powerUp.getCount());
+        editor.commit();
     }
 
     public void onBoostClick(View view) {
@@ -749,7 +847,7 @@ public class MainActivity extends AppCompatActivity {
                     ((Button) entry.getValue().getView().findViewById(R.id.menu_button)).setOnClickListener(null);
                 } else {
                     entry.getValue().setPrice(Math.round(
-                            (entry.getValue().getCount() * entry.getValue().getBasePrice() * 1.15)));
+                            (entry.getValue().getCount() * entry.getValue().getBasePrice() * 1.2)));
                     ((Button) entry.getValue().getView().findViewById(R.id.menu_button))
                             .setText(getString(R.string.buttonPrice, entry.getValue().getPrice()));
                 }
@@ -757,17 +855,31 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     private void makeDollar() {
-        wasDolarekClicked = false;
-        dolarek = getLayoutInflater().inflate(R.layout.dolarek, null);
 
+        wasDolarekClicked = false;
+
+        dolarekLayout.removeAllViews();
         dolarekLayout.addView(dolarek);
 
-        float dolarekWidth = 50*Resources.getSystem().getDisplayMetrics().density;
+        xBound = Math.round(dolarekLayout.getWidth()-2*50*Resources.getSystem().getDisplayMetrics().density);
+        yBound = Math.round(dolarekLayout.getHeight()-2*50*Resources.getSystem().getDisplayMetrics().density
+                    - findViewById(R.id.counter).getHeight());
 
-        dolarek.setX(dolarekWidth+rand.nextInt(Math.round(dolarekLayout.getWidth()-2*dolarekWidth)));
-        dolarek.setY(dolarekWidth+rand.nextInt(Math.round(dolarekLayout.getHeight()-2*dolarekWidth)));
+
+        float dolarekWidth = 60*Resources.getSystem().getDisplayMetrics().density;
+
+        int yMin = Math.round(dolarekWidth + findViewById(R.id.overTimeButton).getHeight());
+        int yMax = Math.round(dolarekLayout.getHeight() - findViewById(R.id.counter).getHeight() - dolarekWidth);
+        int xMin = 0;
+        int xMax = Math.round(dolarekLayout.getMeasuredWidth() - dolarekWidth);
+        dolarek.setY(getRandomBetween(yMin, yMax));
+        dolarek.setX(getRandomBetween(xMin, xMax));
+      /*  dolarek.setX(dolarekWidth+rand.nextInt(xBound));
+        dolarek.setY(dolarekWidth + findViewById(R.id.overTimeButton).getHeight()+rand.nextInt(yBound));
+*/
+
+        dolarekLayout.startAnimation(fadeIn);
 
 
         Log.i("Dolarek", "" +dolarekWidth);
@@ -779,26 +891,74 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        dolarekLayout.removeView(dolarek);
-                        if (!wasDolarekClicked)
-                            Toast.makeText(getApplicationContext(), "Przegapiłeś bonus!", Toast.LENGTH_SHORT).show();
+                        dolarekLayout.startAnimation(fadeOut);
                     }
                 });
             }
         };
 
-        timer.schedule(dolarekTask, 3000);
+        dolarekCounter.schedule(dolarekTask, 3000);
     }
 
     public void onDolarekClick(View view) {
-        wasDolarekClicked = true;
-        dolarekLayout.removeView(dolarek);
+        if(!wasDolarekClicked) {
+            wasDolarekClicked = true;
 
-        float prestizBonus = 100 * ((clickValue * 5 + overTimeValue) / 2);
-        prestiz += prestizBonus;
+            dolarekLayout.startAnimation(fadeOut);
+
+            float prestizBonus = 80 * ((clickValue * 5 + overTimeValue) / 2);
+            prestiz += prestizBonus;
 
 
-        Toast.makeText(getApplicationContext(), "Zdobyłeś " + prestizBonus + " prestiżu !", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.gotBonus, prestizBonus), Toast.LENGTH_LONG).show();
+        }
     }
 
+    public int getRandomBetween(int x, int y){
+        if(x > y) return  getRandomBetween(y, x);
+        return rand.nextInt((y - x) + 1) + x;
+    }
+
+
+    void onEnd() {
+        isFinished = true;
+        editor.putBoolean("isFinished", true);
+        editor.commit();
+        startEndActivity();
+    }
+
+    void startEndActivity(){
+        finish();
+        startActivity(new Intent(MainActivity.this, EndActivity.class));
+    }
+
+
+    public void arrowOnClick(View view) {
+        startEndActivity();
+    }
+
+    public void createUpdate14Dialog() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Kruszwil Soundboard 1.4");
+        builder.setMessage("Witaj w wersji 1.4! Naprawiliśmy frustrujące graczy błędy, przedłużyliśmy rozgrywkę oraz dodaliśmy zakończenie. Gdyby pojawiły się nowe błędy, prosimy zgłaszać je za pomocą raportów lub na knkmobileapps@gmail.com. Miłej zabawy!");
+        builder.setPositiveButton("ROZUMIEM", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                editor.putBoolean("seen14", true);
+                editor.commit();
+                dialogInterface.dismiss();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+            }
+        });
+        dialog.show();
+
+    }
 }

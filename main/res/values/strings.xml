@@ -31,13 +31,15 @@
     <string name="overtime7">Willa</string>
     <string name="overtime8">Giełda Kryptowalut</string>
 
+    <string name="gotBonus">Zdobyłeś %,1.1f prestiżu!</string>
+    <string name="missedBonus">Przegapiłeś bonus!</string>
+
     <string name="factory_url">http://kruszwil.000webhostapp.com/kruszwilclicker.json</string>
     <string name="google_play_url">https://play.google.com/store/apps/details?id=com.knk.kruszwilclicker</string>
 
     <string name="admob_app_id">ca-app-pub-8349688339545762~7818181437</string>
     <string name="banner_ad_unit_id">ca-app-pub-8349688339545762/3439118570</string>
     <string name="rewarded_ad_unit_id">ca-app-pub-8349688339545762/4668030649</string>
-
 
 
 </resources>

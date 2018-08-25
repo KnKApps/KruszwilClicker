@@ -77,6 +77,30 @@
 
         </RelativeLayout>
 
+        <Button
+            android:id="@+id/arrowButton"
+
+
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/boost_buttonks"
+            android:onClick="arrowOnClick"
+            android:visibility="invisible"
+            android:shadowColor="#000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="1.5"
+            android:text="END"
+            android:textColor="#FFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/counter" />
+
+
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="wrap_content"
@@ -159,15 +183,14 @@
         <RelativeLayout
             android:id="@+id/dolarekLayout"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
+            android:layout_height="match_parent"
+
             android:visibility="visible"
             app:layout_constraintBottom_toTopOf="@+id/boostButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/counter">
+            app:layout_constraintTop_toBottomOf="@+id/counter"
+            >
 
         </RelativeLayout>
 
